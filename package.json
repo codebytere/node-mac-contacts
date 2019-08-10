@@ -1,0 +1,33 @@
+{
+  "name": "node-mac-contacts",
+  "version": "0.0.1",
+  "description": "A native module that allows you to access and manipulate macOS contacts",
+  "main": "index.js",
+  "scripts": {
+    "build": "node-gyp rebuild",
+    "clean": "node-gyp clean"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/codebytere/node-mac-contacts.git"
+  },
+  "keywords": [
+    "contacts",
+    "macos",
+    "node",
+    "electron",
+    "native"
+  ],
+  "author": "Shelley Vohr (@codebytere)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/codebytere/node-mac-contacts/issues"
+  },
+  "homepage": "https://github.com/codebytere/node-mac-contacts#readme",
+  "devDependencies": {
+    "node-gyp": "^5.0.3"
+  },
+  "dependencies": {
+    "node-addon-api": "^1.7.1"
+  }
+}
