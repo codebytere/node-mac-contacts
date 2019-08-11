@@ -1,28 +1,35 @@
 #include <napi.h>
 #import <Contacts/Contacts.h>
 
-struct Contact {
-  Napi::String first_name;
-  Napi::String last_name;
-  Napi::String job_title;
-  Napi::String nickname;
-  Napi::String birthday;
-  Napi::Array phone_numbers;
-  Napi::Array postal_addresses;
-  Napi::Array email_addresses;
-};
+/***** HELPERS *****/
 
-// getAllContacts()
-Napi::Array GetAllContacts(const Napi::CallbackInfo &info) {
-  Napi::Env env = info.Env();
+Napi::Object CreateContact(Napi::Env env, CNContact *cncontact) {
+  Napi::Object contact = Napi::Object::New(env);
 
-  CNContactStore* addressBook = [[CNContactStore alloc] init];
-  Napi::Array companies = Napi::Array::New(env, 6);
-  return companies;
+  contact.Set("firstName", std::string([[cncontact givenName] UTF8String]));
+  contact.Set("lastName", std::string([[cncontact familyName] UTF8String]));
+
+  return contact;
 }
 
+Napi::Array GetAllContacts(const Napi::CallbackInfo &info) {
+  Napi::Env env = info.Env();
+  Napi::Array contacts = Napi::Array::New(env);
 
-// getAuthStatus()
+  CNContactStore* addressBook = [[CNContactStore alloc] init];
+  NSArray *keys = @[ CNContactGivenNameKey, CNContactFamilyNameKey ];
+
+  NSPredicate *predicate = [CNContact predicateForContactsInContainerWithIdentifier:addressBook.defaultContainerIdentifier];
+	NSArray *cncontacts = [addressBook unifiedContactsMatchingPredicate:predicate keysToFetch:keys error:nil];
+  
+  int i = 0;
+  for (CNContact *cncontact in cncontacts) {
+    contacts[i++] = CreateContact(env, cncontact);;
+	}
+
+  return contacts;
+}
+
 Napi::Value GetAuthStatus(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
   std::string auth_status = "Not Determined";
@@ -41,16 +48,8 @@ Napi::Value GetAuthStatus(const Napi::CallbackInfo &info) {
 }
 
 Napi::Object Init(Napi::Env env, Napi::Object exports) {
-  exports.Set(
-    Napi::String::New(env, "getAllContacts"),
-    Napi::Function::New(env, GetAllContacts)
-  );
-
-  exports.Set(
-    Napi::String::New(env, "getAuthStatus"),
-    Napi::Function::New(env, GetAuthStatus)
-  );
-
+  exports.Set(Napi::String::New(env, "getAllContacts"), Napi::Function::New(env, GetAllContacts));
+  exports.Set(Napi::String::New(env, "getAuthStatus"), Napi::Function::New(env, GetAuthStatus));
   return exports;
 }
 
