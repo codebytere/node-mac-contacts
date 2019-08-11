@@ -8,23 +8,74 @@ Napi::Object CreateContact(Napi::Env env, CNContact *cncontact) {
 
   contact.Set("firstName", std::string([[cncontact givenName] UTF8String]));
   contact.Set("lastName", std::string([[cncontact familyName] UTF8String]));
+  contact.Set("nickname", std::string([[cncontact nickname] UTF8String]));
+
+  // Populate phone number array
+  int num_numbers = [[cncontact phoneNumbers] count];
+  Napi::Array phone_numbers = Napi::Array::New(env, num_numbers);
+  NSArray <CNLabeledValue<CNPhoneNumber*>*> *phoneNumbers = [cncontact phoneNumbers];
+  for (int i = 0; i < num_numbers; i++) {
+    CNLabeledValue<CNPhoneNumber*> *phone = [phoneNumbers objectAtIndex:i];
+    CNPhoneNumber *number = [phone value];
+    phone_numbers[i] = std::string([[number stringValue] UTF8String]);
+  }
+
+  contact.Set("phoneNumbers", phone_numbers);
+
+  // Populate email address array
+  int num_email_addresses = [[cncontact emailAddresses] count];
+  Napi::Array email_addresses = Napi::Array::New(env, num_numbers);
+  NSArray <CNLabeledValue<NSString*>*> *emailAddresses = [cncontact emailAddresses];
+  for (int i = 0; i < num_email_addresses; i++) {
+    CNLabeledValue<NSString*> *email_address = [emailAddresses objectAtIndex:i];
+    phone_numbers[i] = std::string([[email_address value] UTF8String]);
+  }
+
+  contact.Set("emailAddresses", email_addresses);
 
   return contact;
 }
+
+Napi::Object GetContactByName(const Napi::CallbackInfo &info) {
+  Napi::Env env = info.Env();
+  Napi::Object contact = Napi::Object::New(env);
+
+  // TODO(codebytere): IMPLEMENT
+
+  return contact;
+}
+
+Napi::Object GetContactByPhoneNumber(const Napi::CallbackInfo &info) {
+  Napi::Env env = info.Env();
+  Napi::Object contact = Napi::Object::New(env);
+
+  // TODO(codebytere): IMPLEMENT
+
+  return contact;
+}
+
 
 Napi::Array GetAllContacts(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
   Napi::Array contacts = Napi::Array::New(env);
 
   CNContactStore* addressBook = [[CNContactStore alloc] init];
-  NSArray *keys = @[ CNContactGivenNameKey, CNContactFamilyNameKey ];
+  NSArray *keys = @[
+    CNContactGivenNameKey,
+    CNContactFamilyNameKey,
+    CNContactPhoneNumbersKey,
+    CNContactEmailAddressesKey,
+    CNContactNicknameKey,
+    CNContactPostalAddressesKey,
+    CNContactBirthdayKey
+  ];
 
   NSPredicate *predicate = [CNContact predicateForContactsInContainerWithIdentifier:addressBook.defaultContainerIdentifier];
 	NSArray *cncontacts = [addressBook unifiedContactsMatchingPredicate:predicate keysToFetch:keys error:nil];
   
   int i = 0;
   for (CNContact *cncontact in cncontacts) {
-    contacts[i++] = CreateContact(env, cncontact);;
+    contacts[i++] = CreateContact(env, cncontact);
 	}
 
   return contacts;
