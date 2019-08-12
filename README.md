@@ -112,8 +112,15 @@ Returns `Boolean` - whether the contact information was created successfully.
 Creates and save a new contact to the user's contacts database.
 
 ```js
-const contact = { firstName: 'Bilbo', lastName: 'Baggins' }
-const success = contacts.addNewContact(contact)
+const success = contacts.addNewContact({
+  firstName: 'William',
+  lastName: 'Grapeseed',
+  nickname: 'Billy',
+  birthday: '1990-09-09',
+  phoneNumbers: [ '+1234567890' ],
+  emailAddresses: ['billy@grapeseed.com' ]
+})
+
 console.log(`New contact was ${success ? 'saved' : 'not saved'}.`)
 ```
 
