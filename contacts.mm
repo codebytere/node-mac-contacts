@@ -60,9 +60,11 @@ Napi::Object CreateContact(Napi::Env env, CNContact *cncontact) {
   Napi::Array email_addresses = GetEmailAddresses(env, cncontact);
   contact.Set("emailAddresses", email_addresses);
 
-    // Populate postal address array
+  // Populate postal address array
   Napi::Array postal_addresses = GetPostalAddresses(env, cncontact);
   contact.Set("postalAddresses", postal_addresses);
+
+  //TODO(codebytere): create/return contact string for CNContactBirthdayKey
 
   return contact;
 }
@@ -127,6 +129,7 @@ Napi::Array GetContactsByName(const Napi::CallbackInfo &info) {
     CNContactBirthdayKey
   ];
 
+  // TODO(codebytere): check arg type in JS
   std::string name_string = info[0].As<Napi::String>().Utf8Value();
   NSString* name = [NSString stringWithUTF8String:name_string.c_str()];
   NSPredicate *predicate = [CNContact predicateForContactsMatchingName:name];
@@ -135,10 +138,12 @@ Napi::Array GetContactsByName(const Napi::CallbackInfo &info) {
   NSArray *cncontacts = [addressBook unifiedContactsMatchingPredicate:predicate
                                                                 keysToFetch:keys
                                                                       error:&error];
+  // TODO(codebytere): throw if error != nil
+
   int i = 0;
   for (CNContact *cncontact in cncontacts) {
     result[i++] = CreateContact(env, cncontact);
-	}
+  }
 
   return result;
 }
