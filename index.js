@@ -8,11 +8,12 @@ function getContactsByName(name) {
 
 function addNewContact(contact) {
   if (!contact || Object.keys(contact).length === 0) {
-    throw new TypeError('contact must be a nonempty object')
+    throw new TypeError('contact must be a non-empty object')
   } else {
     const hasFirstName = contact.hasOwnProperty('firstName')
     const hasLastName = contact.hasOwnProperty('lastName')
     const hasNickname = contact.hasOwnProperty('nickname')
+    const hasBirthday = contact.hasOwnProperty('birthday')
     const hasPhoneNumbers = contact.hasOwnProperty('phoneNumbers')
     const hasPostalAddresses = contact.hasOwnProperty('postalAddresses')
     const hasEmailAddresses = contact.hasOwnProperty('emailAddresses')
@@ -23,6 +24,15 @@ function addNewContact(contact) {
     if (hasPhoneNumbers && !Array.isArray(contact.phoneNumbers)) throw new TypeError('phoneNumbers must be an array')
     if (hasPostalAddresses && !Array.isArray(contact.postalAddresses)) throw new TypeError('postalAddresses must be an array')
     if (hasEmailAddresses && !Array.isArray(contact.emailAddresses)) throw new TypeError('emailAddresses must be an array')
+
+    if (hasBirthday) {
+      const datePattern = /^\d{4}\-(0[1-9]|1[012])\-(0[1-9]|[12][0-9]|3[01])$/
+      if (typeof contact.birthday !== 'string') {
+        throw new TypeError('birthday must be a string')
+      } else if (!contact.birthday.match(datePattern)) {
+        throw new Error('birthday must use YYYY-MM-DD format')
+      }
+    }
   }
 
   return contacts.addNewContact.call(this, contact)

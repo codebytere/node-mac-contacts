@@ -190,6 +190,20 @@ Napi::Boolean AddNewContact(const Napi::CallbackInfo &info) {
     [contact setFamilyName:[NSString stringWithUTF8String:nick_name.c_str()]];
   }
 
+  if(contact_data.Has("birthday")) {
+    std::string birth_day = contact_data.Get("birthday").As<Napi::String>().Utf8Value();
+    NSString *bday = [NSString stringWithUTF8String:birth_day.c_str()];
+    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+    [formatter setDateFormat:@"yyyy-MM-dd"];
+
+    NSDate *bday_date = [formatter dateFromString:bday];
+
+    NSCalendar *cal = [NSCalendar currentCalendar];
+    unsigned unitFlags = NSYearCalendarUnit | NSMonthCalendarUnit |  NSDayCalendarUnit;
+    NSDateComponents *birthday_components = [cal components:unitFlags fromDate:bday_date];
+    [contact setBirthday:birthday_components];
+  }
+
   CNSaveRequest *request = [[CNSaveRequest alloc] init];
   [request addContact:contact toContainerWithIdentifier:nil];
   bool success = [addressBook executeSaveRequest:request error:nil];
