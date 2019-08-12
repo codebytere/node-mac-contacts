@@ -77,6 +77,49 @@ Napi::Object CreateContact(Napi::Env env, CNContact *cncontact) {
   return contact;
 }
 
+NSArray* ParsePhoneNumbers(Napi::Array phone_number_data) {
+  NSMutableArray *phone_numbers = [[NSMutableArray alloc] init];
+
+  int data_length = static_cast<int>(phone_number_data.Length());
+  for (int i = 0; i < data_length; i++) {
+    std::string number_str = phone_number_data.Get(i).As<Napi::String>().Utf8Value();
+    NSString *number = [NSString stringWithUTF8String:number_str.c_str()];
+    CNPhoneNumber *phone_number = [CNPhoneNumber phoneNumberWithStringValue:number];
+    CNLabeledValue *labeled_value = [CNLabeledValue labeledValueWithLabel:@"Home" value:phone_number];
+    [phone_numbers addObject:labeled_value];
+  }
+
+  return phone_numbers;
+}
+
+NSArray* ParseEmailAddresses(Napi::Array email_address_data) {
+  NSMutableArray *email_addresses = [[NSMutableArray alloc] init];
+
+  int data_length = static_cast<int>(email_address_data.Length());
+  for (int i = 0; i < data_length; i++) {
+    std::string email_str = email_address_data.Get(i).As<Napi::String>().Utf8Value();
+    NSString *email = [NSString stringWithUTF8String:email_str.c_str()];
+    CNLabeledValue *labeled_value = [CNLabeledValue labeledValueWithLabel:@"Home" value:email];
+    [email_addresses addObject:labeled_value];
+  }
+
+  return email_addresses;
+}
+
+NSDateComponents* ParseBirthday(std::string birth_day) {
+  NSString *bday = [NSString stringWithUTF8String:birth_day.c_str()];
+  NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+  [formatter setDateFormat:@"yyyy-MM-dd"];
+
+  NSDate *bday_date = [formatter dateFromString:bday];
+
+  NSCalendar *cal = [NSCalendar currentCalendar];
+  unsigned unitFlags = NSYearCalendarUnit | NSMonthCalendarUnit |  NSDayCalendarUnit;
+  NSDateComponents *birthday_components = [cal components:unitFlags fromDate:bday_date];
+
+  return birthday_components;
+}
+
 CNAuthorizationStatus AuthStatus() {
   CNEntityType entityType = CNEntityTypeContacts;
   return [CNContactStore authorizationStatusForEntityType:entityType];
@@ -172,36 +215,40 @@ Napi::Boolean AddNewContact(const Napi::CallbackInfo &info) {
   if (AuthStatus() != CNAuthorizationStatusAuthorized)
     return Napi::Boolean::New(env, false);
 
-  // Parse Contact object data
   CNMutableContact *contact = [[CNMutableContact alloc] init];
   Napi::Object contact_data = info[0].As<Napi::Object>();
-  if(contact_data.Has("firstName")) {
+
+  if (contact_data.Has("firstName")) {
     std::string first_name = contact_data.Get("firstName").As<Napi::String>().Utf8Value();
     [contact setGivenName:[NSString stringWithUTF8String:first_name.c_str()]];
   }
 
-  if(contact_data.Has("lastName")) {
+  if (contact_data.Has("lastName")) {
     std::string last_name = contact_data.Get("lastName").As<Napi::String>().Utf8Value();
     [contact setFamilyName:[NSString stringWithUTF8String:last_name.c_str()]];
   }
 
-  if(contact_data.Has("nickname")) {
+  if (contact_data.Has("nickname")) {
     std::string nick_name = contact_data.Get("nickname").As<Napi::String>().Utf8Value();
     [contact setFamilyName:[NSString stringWithUTF8String:nick_name.c_str()]];
   }
 
-  if(contact_data.Has("birthday")) {
+  if (contact_data.Has("birthday")) {
     std::string birth_day = contact_data.Get("birthday").As<Napi::String>().Utf8Value();
-    NSString *bday = [NSString stringWithUTF8String:birth_day.c_str()];
-    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
-    [formatter setDateFormat:@"yyyy-MM-dd"];
-
-    NSDate *bday_date = [formatter dateFromString:bday];
-
-    NSCalendar *cal = [NSCalendar currentCalendar];
-    unsigned unitFlags = NSYearCalendarUnit | NSMonthCalendarUnit |  NSDayCalendarUnit;
-    NSDateComponents *birthday_components = [cal components:unitFlags fromDate:bday_date];
+    NSDateComponents *birthday_components = ParseBirthday(birth_day);
     [contact setBirthday:birthday_components];
+  }
+
+  if (contact_data.Has("phoneNumbers")) {
+    Napi::Array phone_number_data = contact_data.Get("phoneNumbers").As<Napi::Array>();
+    NSArray *phone_numbers = ParsePhoneNumbers(phone_number_data);
+    [contact setPhoneNumbers:[NSArray arrayWithArray:phone_numbers]];
+  }
+
+  if (contact_data.Has("emailAddresses")) {
+    Napi::Array email_address_data = contact_data.Get("emailAddresses").As<Napi::Array>();
+    NSArray *email_addresses = ParseEmailAddresses(email_address_data);
+    [contact setEmailAddresses:[NSArray arrayWithArray:email_addresses]];
   }
 
   CNSaveRequest *request = [[CNSaveRequest alloc] init];

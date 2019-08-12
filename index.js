@@ -15,14 +15,12 @@ function addNewContact(contact) {
     const hasNickname = contact.hasOwnProperty('nickname')
     const hasBirthday = contact.hasOwnProperty('birthday')
     const hasPhoneNumbers = contact.hasOwnProperty('phoneNumbers')
-    const hasPostalAddresses = contact.hasOwnProperty('postalAddresses')
     const hasEmailAddresses = contact.hasOwnProperty('emailAddresses')
 
     if (hasFirstName && typeof contact.firstName !== 'string') throw new TypeError('firstName must be a string')
     if (hasLastName && typeof contact.lastName !== 'string') throw new TypeError('lastName must be a string')
     if (hasNickname && typeof contact.nickname !== 'string') throw new TypeError('nickname must be a string')
     if (hasPhoneNumbers && !Array.isArray(contact.phoneNumbers)) throw new TypeError('phoneNumbers must be an array')
-    if (hasPostalAddresses && !Array.isArray(contact.postalAddresses)) throw new TypeError('postalAddresses must be an array')
     if (hasEmailAddresses && !Array.isArray(contact.emailAddresses)) throw new TypeError('emailAddresses must be an array')
 
     if (hasBirthday) {
