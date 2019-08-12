@@ -157,6 +157,36 @@ Napi::Object GetContactsByPhoneNumber(const Napi::CallbackInfo &info) {
   return contact;
 }
 
+Napi::Boolean AddNewContact(const Napi::CallbackInfo &info) {
+  Napi::Env env = info.Env();
+
+  CNContactStore* addressBook = [[CNContactStore alloc] init];
+  CNMutableContact *contact = [[CNMutableContact alloc] init];
+
+  // Parse Contact object data
+  Napi::Object contact_data = info[0].As<Napi::Object>();
+  if(contact_data.Has("firstName")) {
+    std::string first_name = contact_data.Get("firstName").As<Napi::String>().Utf8Value();
+    [contact setGivenName:[NSString stringWithUTF8String:first_name.c_str()]];
+  }
+
+  if(contact_data.Has("lastName")) {
+    std::string last_name = contact_data.Get("lastName").As<Napi::String>().Utf8Value();
+    [contact setFamilyName:[NSString stringWithUTF8String:last_name.c_str()]];
+  }
+
+  if(contact_data.Has("nickname")) {
+    std::string nick_name = contact_data.Get("nickname").As<Napi::String>().Utf8Value();
+    [contact setFamilyName:[NSString stringWithUTF8String:nick_name.c_str()]];
+  }
+
+  CNSaveRequest* request = [[CNSaveRequest alloc] init];
+  [request addContact:contact toContainerWithIdentifier:nil];
+  bool success = [addressBook executeSaveRequest:request error:nil];
+
+  return Napi::Boolean::New(env, success);
+}
+
 Napi::Object Init(Napi::Env env, Napi::Object exports) {
   exports.Set(
     Napi::String::New(env, "getAuthStatus"), Napi::Function::New(env, GetAuthStatus)
@@ -169,6 +199,9 @@ Napi::Object Init(Napi::Env env, Napi::Object exports) {
   );
   exports.Set(
     Napi::String::New(env, "getContactsByPhoneNumber"), Napi::Function::New(env, GetContactsByPhoneNumber)
+  );
+  exports.Set(
+    Napi::String::New(env, "addNewContact"), Napi::Function::New(env, AddNewContact)
   );
 
   return exports;
