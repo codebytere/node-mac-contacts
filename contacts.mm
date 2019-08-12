@@ -69,14 +69,18 @@ Napi::Object CreateContact(Napi::Env env, CNContact *cncontact) {
   return contact;
 }
 
+CNAuthorizationStatus AuthStatus() {
+  CNEntityType entityType = CNEntityTypeContacts;
+  return [CNContactStore authorizationStatusForEntityType:entityType];
+}
+
 /***** EXPORTED FUNCTIONS *****/
 
 Napi::Value GetAuthStatus(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
   std::string auth_status = "Not Determined";
 
-  CNEntityType entityType = CNEntityTypeContacts;
-  auto status_for_entity = [CNContactStore authorizationStatusForEntityType:entityType];
+  CNAuthorizationStatus status_for_entity = AuthStatus();
 
   if (status_for_entity == CNAuthorizationStatusAuthorized)
     auth_status = "Authorized";
@@ -91,8 +95,11 @@ Napi::Value GetAuthStatus(const Napi::CallbackInfo &info) {
 Napi::Array GetAllContacts(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
   Napi::Array contacts = Napi::Array::New(env);
-
   CNContactStore* addressBook = [[CNContactStore alloc] init];
+  
+  if (AuthStatus() != CNAuthorizationStatusAuthorized)
+    return contacts;
+
   NSArray *keys = @[
     CNContactGivenNameKey,
     CNContactFamilyNameKey,
@@ -117,8 +124,11 @@ Napi::Array GetAllContacts(const Napi::CallbackInfo &info) {
 Napi::Array GetContactsByName(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
   Napi::Array result = Napi::Array::New(env);
-
   CNContactStore* addressBook = [[CNContactStore alloc] init];
+
+  if (AuthStatus() != CNAuthorizationStatusAuthorized)
+    return result;
+
   NSArray *keys = @[
     CNContactGivenNameKey,
     CNContactFamilyNameKey,
@@ -129,17 +139,13 @@ Napi::Array GetContactsByName(const Napi::CallbackInfo &info) {
     CNContactBirthdayKey
   ];
 
-  // TODO(codebytere): check arg type in JS
   std::string name_string = info[0].As<Napi::String>().Utf8Value();
   NSString* name = [NSString stringWithUTF8String:name_string.c_str()];
   NSPredicate *predicate = [CNContact predicateForContactsMatchingName:name];
 
-  NSError *error;
   NSArray *cncontacts = [addressBook unifiedContactsMatchingPredicate:predicate
                                                                 keysToFetch:keys
-                                                                      error:&error];
-  // TODO(codebytere): throw if error != nil
-
+                                                                      error:nil];
   int i = 0;
   for (CNContact *cncontact in cncontacts) {
     result[i++] = CreateContact(env, cncontact);
@@ -148,22 +154,15 @@ Napi::Array GetContactsByName(const Napi::CallbackInfo &info) {
   return result;
 }
 
-Napi::Object GetContactsByPhoneNumber(const Napi::CallbackInfo &info) {
-  Napi::Env env = info.Env();
-  Napi::Object contact = Napi::Object::New(env);
-
-  // TODO(codebytere): IMPLEMENT
-
-  return contact;
-}
-
 Napi::Boolean AddNewContact(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
-
   CNContactStore* addressBook = [[CNContactStore alloc] init];
-  CNMutableContact *contact = [[CNMutableContact alloc] init];
+
+  if (AuthStatus() != CNAuthorizationStatusAuthorized)
+    return Napi::Boolean::New(env, false);
 
   // Parse Contact object data
+  CNMutableContact *contact = [[CNMutableContact alloc] init];
   Napi::Object contact_data = info[0].As<Napi::Object>();
   if(contact_data.Has("firstName")) {
     std::string first_name = contact_data.Get("firstName").As<Napi::String>().Utf8Value();
@@ -196,9 +195,6 @@ Napi::Object Init(Napi::Env env, Napi::Object exports) {
   );
   exports.Set(
     Napi::String::New(env, "getContactsByName"), Napi::Function::New(env, GetContactsByName)
-  );
-  exports.Set(
-    Napi::String::New(env, "getContactsByPhoneNumber"), Napi::Function::New(env, GetContactsByPhoneNumber)
   );
   exports.Set(
     Napi::String::New(env, "addNewContact"), Napi::Function::New(env, AddNewContact)

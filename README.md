@@ -1,4 +1,6 @@
-## macOS Contacts
+# node-mac-contacts
+
+## Description
 
 This Native Node Module allows you to create, read, update, and delete contact from users' contacts databases on macOS.
 
@@ -10,6 +12,7 @@ In your app, you should put the reason you're requesting to manipulate user's co
 <key>NSContactsUsageDescription</key>
 <string>Your reason for wanting to access the Contact store</string>
 ```
+## API
 
 ### contacts.checkAuthorizationStatus()
 
@@ -91,9 +94,9 @@ This method will return an empty array (`[]`) if access to Contacts has not been
   * `firstName` String - The first name of the contact.
   * `lastName` String - The last name of the contact.
   * `nickname` String - The nickname for the contact.
-  * `lastName` Array<String> - The phone numbers for the contact, as strings in [E.164 format](https://en.wikipedia.org/wiki/E.164): `+14155552671` or `+442071838750`.
-  * `lastName` Array<String> - The email addresses for the contact, as strings.
-  * `lastName` Array<String> - The postal addresses for the contact, as strings.
+  * `phoneNumbers` Array<String> - The phone numbers for the contact, as strings in [E.164 format](https://en.wikipedia.org/wiki/E.164): `+14155552671` or `+442071838750`.
+  * `emailAddresses` Array<String> - The email addresses for the contact, as strings.
+  * `postalAddresses` Array<String> - The postal addresses for the contact, as strings.
 
 Returns `Boolean` - whether the contact information was created successfully.
 
