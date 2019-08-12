@@ -2,6 +2,10 @@
 
 ## Description
 
+```js
+$ npm i node-mac-contacts
+```
+
 This Native Node Module allows you to create, read, update, and delete contact from users' contacts databases on macOS.
 
 All methods invoking the [CNContactStore](https://developer.apple.com/documentation/contacts/cncontactstore) will require authorization, which will be requested the first time the functions themselves are invoked. You can verify authorization status with `contacts.checkAuthorizationStatus()` as outlined below.
@@ -12,6 +16,7 @@ In your app, you should put the reason you're requesting to manipulate user's co
 <key>NSContactsUsageDescription</key>
 <string>Your reason for wanting to access the Contact store</string>
 ```
+
 ## API
 
 ### contacts.checkAuthorizationStatus()
@@ -52,6 +57,7 @@ console.log(allContacts[0])
     firstName: 'Jonathan',
     lastName: 'Appleseed',
     nickname: 'Johnny',
+    birthday: '1970-01-01',
     phoneNumbers: [ +11234566789' ],
     emailAddresses: [ 'johnny@appleseed.com' ] 
     postalAddresses: [ '123 Pine Tree Way\nBlack Oak, Arkansas 72414\nUnited States' ] 
@@ -64,9 +70,11 @@ This method will return an empty array (`[]`) if access to Contacts has not been
 
 ### contacts.getContactsByName(name)
 
-* `name` String - The first or last name of a contact.
+* `name` String (required) - The first, last, or full name of a contact.
 
 Returns `Array<Object>` - Returns an array of contact objects where either the first or last name of the contact matches `name`.
+
+If a contact's full name is 'Shelley Vohr', I could pass 'Shelley', 'Vohr', or 'Shelley Vohr' as `name`.
 
 ```js
 const contacts = contacts.getContactsByName('Appleseed')
@@ -78,9 +86,10 @@ console.log(contacts)
     firstName: 'Jonathan',
     lastName: 'Appleseed',
     nickname: 'Johnny',
+    birthday: '1970-01-01',
     phoneNumbers: [ +11234566789' ],
     emailAddresses: [ 'johnny@appleseed.com' ] 
-    postalAddresses: [ '123 Pine Tree Way\nBlack Oak, Arkansas 72414\nUnited States' ] 
+    postalAddresses: [ '123 Pine Tree Way\nBlack Oak, Arkansas 72414\nUnited States' ]
   }
 ]
 */
@@ -91,12 +100,13 @@ This method will return an empty array (`[]`) if access to Contacts has not been
 ### contacts.addNewContact(contact)
 
 * `contact` Object
-  * `firstName` String - The first name of the contact.
-  * `lastName` String - The last name of the contact.
-  * `nickname` String - The nickname for the contact.
-  * `phoneNumbers` Array<String> - The phone numbers for the contact, as strings in [E.164 format](https://en.wikipedia.org/wiki/E.164): `+14155552671` or `+442071838750`.
-  * `emailAddresses` Array<String> - The email addresses for the contact, as strings.
-  * `postalAddresses` Array<String> - The postal addresses for the contact, as strings.
+  * `firstName` String (required) - The first name of the contact.
+  * `lastName` String (optional) - The last name of the contact.
+  * `nickname` String (optional) - The nickname for the contact.
+  * `birthday` String (optional) - The birthday for the contact in `YYYY-MM-DD` format.
+  * `phoneNumbers` Array<String> (optional) - The phone numbers for the contact, as strings in [E.164 format](https://en.wikipedia.org/wiki/E.164): `+14155552671` or `+442071838750`.
+  * `emailAddresses` Array<String> (optional) - The email addresses for the contact, as strings.
+  * `postalAddresses` Array<String> (optional) - The postal addresses for the contact, as strings.
 
 Returns `Boolean` - whether the contact information was created successfully.
 
