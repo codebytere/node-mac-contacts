@@ -2,7 +2,7 @@
 
 ```
 <key>NSContactsUsageDescription</key>
-<string>App users your contacts</string>
+<string>Your reason for wanting to access the Contact store</string>
 ```
 
 ### contacts.checkAuthorizationStatus()
@@ -20,6 +20,29 @@ Return Value Descriptions:
 ### contacts.getAllContacts()
 
 Returns `Array<Object>` - Returns an array of contact objects.
+
+Each contact object contains the following:
+
+```js
+{ 
+  firstName: 'Jonathan',
+  lastName: 'Appleseed',
+  nickname: 'Johnny',
+  phoneNumbers: [
+    '(123) 456-6789',
+    '+1122334455678'
+  ],
+  emailAddresses: [
+    'johnny@appleseed.com'
+  ] 
+}
+```
+
+### contacts.getContactsByName(name)
+
+* `name` String - The first or last name of a contact.
+
+Returns `Array<Object>` - Returns an array of contact objects where either the first or last name of the contact matches `name`.
 
 Each contact object contains the following:
 

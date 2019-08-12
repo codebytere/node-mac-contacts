@@ -67,7 +67,7 @@ Napi::Object CreateContact(Napi::Env env, CNContact *cncontact) {
   return contact;
 }
 
-/***** Exported Functions *****/
+/***** EXPORTED FUNCTIONS *****/
 
 Napi::Value GetAuthStatus(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
