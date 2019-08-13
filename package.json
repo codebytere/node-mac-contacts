@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "build": "node-gyp rebuild",
-    "clean": "node-gyp clean"
+    "clean": "node-gyp clean",
+    "test": "./node_modules/.bin/mocha --reporter spec"
   },
   "repository": {
     "type": "git",
@@ -25,6 +26,8 @@
   },
   "homepage": "https://github.com/codebytere/node-mac-contacts#readme",
   "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^6.2.0",
     "node-gyp": "^5.0.3"
   },
   "dependencies": {
