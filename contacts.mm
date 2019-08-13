@@ -46,12 +46,17 @@ Napi::Array GetPostalAddresses(Napi::Env env, CNContact *cncontact) {
 }
 
 std::string GetBirthday(CNContact *cncontact) {
+  std::string result;
+
   NSDate *birth_date = [[cncontact birthday] date];
   NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
   [formatter setDateFormat:@"yyyy-MM-dd"];
 
   NSString *birthday = [formatter stringFromDate:birth_date];  
-  return std::string([birthday UTF8String]);
+  if (birthday)
+    result = std::string([birthday UTF8String]);
+  
+  return result;
 }
 
 Napi::Object CreateContact(Napi::Env env, CNContact *cncontact) {
@@ -60,7 +65,9 @@ Napi::Object CreateContact(Napi::Env env, CNContact *cncontact) {
   contact.Set("firstName", std::string([[cncontact givenName] UTF8String]));
   contact.Set("lastName", std::string([[cncontact familyName] UTF8String]));
   contact.Set("nickname", std::string([[cncontact nickname] UTF8String]));
-  contact.Set("birthday", GetBirthday(cncontact));
+
+  std::string birthday = GetBirthday(cncontact);
+  contact.Set("birthday", birthday.empty() ? "" : birthday);
 
   // Populate phone number array
   Napi::Array phone_numbers = GetPhoneNumbers(env, cncontact);
