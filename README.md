@@ -126,7 +126,7 @@ console.log(`New contact was ${success ? 'saved' : 'not saved'}.`)
 
 This method will return `false` if access to Contacts has not been granted.
 
-### contacts.deleteContactByName(name)
+### contacts.deleteContact(name)
 
 * `name` String (required) - The first, last, or full name of a contact.
 
@@ -139,9 +139,38 @@ However, you should take care to specify `name` to such a degree that you can be
 
 ```js
 const name = 'Jonathan Appleseed'
-const deleted = contacts.deleteContactByName(name)
+const deleted = contacts.deleteContact(name)
 
 console.log(`Contact ${name} was ${deleted ? 'deleted' : 'not deleted'}.`)
+```
+
+This method will return `false` if access to Contacts has not been granted.
+
+### contacts.updateContact(contact)
+
+* `contact` Object
+  * `firstName` String (required) - The first name of the contact.
+  * `lastName` String (optional) - The last name of the contact.
+  * `nickname` String (optional) - The nickname for the contact.
+  * `birthday` String (optional) - The birthday for the contact in `YYYY-MM-DD` format.
+  * `phoneNumbers` Array\<String\> (optional) - The phone numbers for the contact, as strings in [E.164 format](https://en.wikipedia.org/wiki/E.164): `+14155552671` or `+442071838750`.
+  * `emailAddresses` Array\<String\> (optional) - The email addresses for the contact, as strings.
+
+Returns `Boolean` - whether the contact was updated successfully.
+
+Updates a contact to the user's contacts database.
+
+You should take care to specify parameters to the `contact` object to such a degree that you can be confident the first contact to be returned from a predicate search is the contact you intend to update.
+
+```js
+// Change contact's nickname from Billy -> Will
+const updated = contacts.updateContact({
+  firstName: 'William',
+  lastName: 'Grapeseed',
+  nickname: 'Will'
+})
+
+console.log(`Contact was ${updated ? 'updated' : 'not updated'}.`)
 ```
 
 This method will return `false` if access to Contacts has not been granted.

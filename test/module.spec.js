@@ -4,7 +4,8 @@ const {
   getContactsByName,
   getAllContacts,
   addNewContact,
-  deleteContactByName
+  deleteContact,
+  updateContact
 } = require('../index')
 
 describe('node-mac-contacts', () => {
@@ -82,11 +83,59 @@ describe('node-mac-contacts', () => {
     })
   })
 
-  describe('deleteContactByName(name)', () => {
+  describe('deleteContact(name)', () => {
     it('should throw if name is not a string', () => {
       expect(() => {
-        deleteContactByName(12345)
+        deleteContact(12345)
       }).to.throw(/name must be a string/)
+    })
+  })
+
+  describe('updateContact(contact)', () => {
+    it('throws if contact is not a nonempty object', () => {
+      expect(() => {
+        updateContact(1)
+      }).to.throw(/contact must be a non-empty object/)
+
+      expect(() => {
+        updateContact({})
+      }).to.throw(/contact must be a non-empty object/)
+    })
+
+    it('should throw if name properties are not strings', () => {
+      expect(() => {
+        updateContact({ firstName: 1 })
+      }).to.throw(/firstName must be a string/)
+
+      expect(() => {
+        updateContact({ lastName: 1 })
+      }).to.throw(/lastName must be a string/)
+
+      expect(() => {
+        updateContact({ nickname: 1 })
+      }).to.throw(/nickname must be a string/)
+    })
+
+    it('should throw if birthday is not a string in YYYY-MM-DD format', () => {
+      expect(() => {
+        updateContact({ birthday: 1 })
+      }).to.throw(/birthday must be a string/)
+
+      expect(() => {
+        updateContact({ birthday: '01-01-1970' })
+      }).to.throw(/birthday must use YYYY-MM-DD format/)
+    })
+
+    it('should throw if phoneNumbers is not an array', () => {
+      expect(() => {
+        updateContact({ phoneNumbers: 1 })
+      }).to.throw(/phoneNumbers must be an array/)
+    })
+
+    it('should throw if emailAddresses is not an array', () => {
+      expect(() => {
+        updateContact({ emailAddresses: 1 })
+      }).to.throw(/emailAddresses must be an array/)
     })
   })
 })
