@@ -125,3 +125,23 @@ console.log(`New contact was ${success ? 'saved' : 'not saved'}.`)
 ```
 
 This method will return `false` if access to Contacts has not been granted.
+
+### contacts.deleteContactByName(name)
+
+* `name` String (required) - The first, last, or full name of a contact.
+
+Returns `Boolean` - whether the contact was deleted successfully.
+
+Deletes a contact to the user's contacts database.
+
+If a contact's full name is 'Shelley Vohr', I could pass 'Shelley', 'Vohr', or 'Shelley Vohr' as `name`.
+However, you should take care to specify `name` to such a degree that you can be confident the first contact to be returned from a predicate search is the contact you intend to delete.
+
+```js
+const name = 'Jonathan Appleseed'
+const deleted = contacts.deleteContactByName(name)
+
+console.log(`Contact ${name} was ${deleted ? 'deleted' : 'not deleted'}.`)
+```
+
+This method will return `false` if access to Contacts has not been granted.

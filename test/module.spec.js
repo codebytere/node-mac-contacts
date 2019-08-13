@@ -3,7 +3,8 @@ const {
   getAuthStatus,
   getContactsByName,
   getAllContacts,
-  addNewContact
+  addNewContact,
+  deleteContactByName
 } = require('../index')
 
 describe('node-mac-contacts', () => {
@@ -78,6 +79,14 @@ describe('node-mac-contacts', () => {
       expect(() => {
         addNewContact({ emailAddresses: 1 })
       }).to.throw(/emailAddresses must be an array/)
+    })
+  })
+
+  describe('deleteContactByName(name)', () => {
+    it('should throw if name is not a string', () => {
+      expect(() => {
+        deleteContactByName(12345)
+      }).to.throw(/name must be a string/)
     })
   })
 })

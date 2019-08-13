@@ -36,9 +36,16 @@ function addNewContact(contact) {
   return contacts.addNewContact.call(this, contact)
 }
 
+function deleteContactByName(name) {
+  if (typeof name !== 'string') throw new TypeError('name must be a string')
+
+  return contacts.deleteContactByName.call(this, name)
+}
+
 module.exports = {
   getAuthStatus: contacts.getAuthStatus,
   getAllContacts: contacts.getAllContacts,
   getContactsByName,
-  addNewContact
+  addNewContact,
+  deleteContactByName
 }
