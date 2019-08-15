@@ -1,6 +1,6 @@
 {
   "name": "node-mac-contacts",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "A native module that allows you to access and manipulate macOS contacts",
   "main": "index.js",
   "scripts": {
