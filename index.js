@@ -1,4 +1,4 @@
-const contacts = require('./build/Release/contacts.node')
+const contacts = require('bindings')('contacts.node')
 
 function getContactsByName(name) {
   if (typeof name !== 'string') throw new TypeError('name must be a string')
