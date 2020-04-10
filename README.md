@@ -50,6 +50,21 @@ console.log(`Authorization access to contacts is: ${authStatus}`)
 
 Returns `Array<Object>` - Returns an array of contact objects.
 
+The returned objects will take the following format:
+
+* `firstName` String - The contact's first name, or an empty string ('') if one is not set.
+* `lastName` String - The contact's last name, or an empty string ('') if one is not set.
+* `nickname` String - The contact's nickname, or an empty string ('') if one is not set.
+* `birthday` String - The contact's birthday in YYYY-MM-DD format, or an empty string ('') if one is not set.
+* `phoneNumbers` Array<String> - An array of phone numbers as strings in [E.164 format](https://en.wikipedia.org/wiki/E.164).
+* `emailAddresses` Array<String> - An array of email addresses as strings.
+* `postalAddresses` Array<String> - An array of postal as strings.
+* `contactImage` Buffer (optional) - a Buffer representation of the contact's image, if one has been set.
+
+This method will return an empty array (`[]`) if access to Contacts has not been granted.
+
+Example:
+
 ```js
 const allContacts = contacts.getAllContacts()
 
@@ -63,13 +78,12 @@ console.log(allContacts[0])
     birthday: '1970-01-01',
     phoneNumbers: [ +11234566789' ],
     emailAddresses: [ 'johnny@appleseed.com' ] 
-    postalAddresses: [ '123 Pine Tree Way\nBlack Oak, Arkansas 72414\nUnited States' ] 
+    postalAddresses: [ '123 Pine Tree Way\nBlack Oak, Arkansas 72414\nUnited States' ],
+    contactImage: <Buffer ff d8 ff e0 00 10 4a 46 49 46 00 01 01 00 00 48 00 48 00 00 ff e1 00 4c 45 78 69 66 00 00 4d 4d 00 2a 00 00 00 08 00 01 87 69 00 04 00 00 00 01 00 00 ... 139493 more bytes>
   }
 ]
 */
 ```
-
-This method will return an empty array (`[]`) if access to Contacts has not been granted.
 
 ### contacts.getContactsByName(name)
 
@@ -78,6 +92,21 @@ This method will return an empty array (`[]`) if access to Contacts has not been
 Returns `Array<Object>` - Returns an array of contact objects where either the first or last name of the contact matches `name`.
 
 If a contact's full name is 'Shelley Vohr', I could pass 'Shelley', 'Vohr', or 'Shelley Vohr' as `name`.
+
+The returned object will take the following format:
+
+* `firstName` String - The contact's first name, or an empty string ('') if one is not set.
+* `lastName` String - The contact's last name, or an empty string ('') if one is not set.
+* `nickname` String - The contact's nickname, or an empty string ('') if one is not set.
+* `birthday` String - The contact's birthday in YYYY-MM-DD format, or an empty string ('') if one is not set.
+* `phoneNumbers` Array<String> - An array of phone numbers as strings in [E.164 format](https://en.wikipedia.org/wiki/E.164).
+* `emailAddresses` Array<String> - An array of email addresses as strings.
+* `postalAddresses` Array<String> - An array of postal as strings.
+* `contactImage` Buffer (optional) - a Buffer representation of the contact's image, if one has been set.
+
+This method will return an empty array (`[]`) if access to Contacts has not been granted.
+
+Example:
 
 ```js
 const contacts = contacts.getContactsByName('Appleseed')
@@ -93,12 +122,11 @@ console.log(contacts)
     phoneNumbers: [ +11234566789' ],
     emailAddresses: [ 'johnny@appleseed.com' ] 
     postalAddresses: [ '123 Pine Tree Way\nBlack Oak, Arkansas 72414\nUnited States' ]
+    contactImage: <Buffer ff d8 ff e0 00 10 4a 46 49 46 00 01 01 00 00 48 00 48 00 00 ff e1 00 4c 45 78 69 66 00 00 4d 4d 00 2a 00 00 00 08 00 01 87 69 00 04 00 00 00 01 00 00 ... 139493 more bytes>
   }
 ]
 */
 ```
-
-This method will return an empty array (`[]`) if access to Contacts has not been granted.
 
 ### contacts.addNewContact(contact)
 
@@ -112,7 +140,11 @@ This method will return an empty array (`[]`) if access to Contacts has not been
 
 Returns `Boolean` - whether the contact information was created successfully.
 
-Creates and save a new contact to the user's contacts database.
+Creates and save a new contact to the user's contacts database. 
+
+This method will return `false` if access to Contacts has not been granted.
+
+Example:
 
 ```js
 const success = contacts.addNewContact({
@@ -127,8 +159,6 @@ const success = contacts.addNewContact({
 console.log(`New contact was ${success ? 'saved' : 'not saved'}.`)
 ```
 
-This method will return `false` if access to Contacts has not been granted.
-
 ### contacts.deleteContact(name)
 
 * `name` String (required) - The first, last, or full name of a contact.
@@ -140,14 +170,16 @@ Deletes a contact to the user's contacts database.
 If a contact's full name is 'Shelley Vohr', I could pass 'Shelley', 'Vohr', or 'Shelley Vohr' as `name`.
 However, you should take care to specify `name` to such a degree that you can be confident the first contact to be returned from a predicate search is the contact you intend to delete.
 
+This method will return `false` if access to Contacts has not been granted.
+
+Example:
+
 ```js
 const name = 'Jonathan Appleseed'
 const deleted = contacts.deleteContact(name)
 
 console.log(`Contact ${name} was ${deleted ? 'deleted' : 'not deleted'}.`)
 ```
-
-This method will return `false` if access to Contacts has not been granted.
 
 ### contacts.updateContact(contact)
 
@@ -165,6 +197,10 @@ Updates a contact to the user's contacts database.
 
 You should take care to specify parameters to the `contact` object to such a degree that you can be confident the first contact to be returned from a predicate search is the contact you intend to update.
 
+This method will return `false` if access to Contacts has not been granted.
+
+Example:
+
 ```js
 // Change contact's nickname from Billy -> Will
 const updated = contacts.updateContact({
@@ -175,5 +211,3 @@ const updated = contacts.updateContact({
 
 console.log(`Contact was ${updated ? 'updated' : 'not updated'}.`)
 ```
-
-This method will return `false` if access to Contacts has not been granted.

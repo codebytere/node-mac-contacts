@@ -67,6 +67,18 @@ std::string GetBirthday(CNContact *cncontact) {
   return result;
 }
 
+Napi::Buffer<uint8_t> GetContactImage(Napi::Env env, CNContact *cncontact) {
+  std::vector<uint8_t> data;
+
+  NSData *image_data = [cncontact imageData];
+  const uint8 *bytes = (uint8 *)[image_data bytes];
+  data.assign(bytes, bytes + [image_data length]);
+
+  if (data.empty())
+    return Napi::Buffer<uint8_t>::New(env, 0);
+  return Napi::Buffer<uint8_t>::Copy(env, &data[0], data.size());
+}
+
 // Creates an object containing all properties of a macOS contact
 Napi::Object CreateContact(Napi::Env env, CNContact *cncontact) {
   Napi::Object contact = Napi::Object::New(env);
@@ -89,6 +101,12 @@ Napi::Object CreateContact(Napi::Env env, CNContact *cncontact) {
   // Populate postal address array
   Napi::Array postal_addresses = GetPostalAddresses(env, cncontact);
   contact.Set("postalAddresses", postal_addresses);
+
+  // Populate contact image if one exists.
+  Napi::Buffer<uint8_t> image_buffer = GetContactImage(env, cncontact);
+  if (image_buffer.Length() > 0) {
+    contact.Set("contactImage", image_buffer);
+  }
 
   return contact;
 }
@@ -161,7 +179,7 @@ NSArray *GetContactKeys() {
   NSArray *keys = @[
     CNContactGivenNameKey, CNContactFamilyNameKey, CNContactPhoneNumbersKey,
     CNContactEmailAddressesKey, CNContactNicknameKey,
-    CNContactPostalAddressesKey, CNContactBirthdayKey
+    CNContactPostalAddressesKey, CNContactBirthdayKey, CNContactImageDataKey
   ];
 
   return keys;
