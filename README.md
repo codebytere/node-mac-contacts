@@ -56,9 +56,9 @@ The returned objects will take the following format:
 * `lastName` String - The contact's last name, or an empty string ('') if one is not set.
 * `nickname` String - The contact's nickname, or an empty string ('') if one is not set.
 * `birthday` String - The contact's birthday in YYYY-MM-DD format, or an empty string ('') if one is not set.
-* `phoneNumbers` Array<String> - An array of phone numbers as strings in [E.164 format](https://en.wikipedia.org/wiki/E.164).
-* `emailAddresses` Array<String> - An array of email addresses as strings.
-* `postalAddresses` Array<String> - An array of postal as strings.
+* `phoneNumbers` String[] - An array of phone numbers as strings in [E.164 format](https://en.wikipedia.org/wiki/E.164).
+* `emailAddresses` String[] - An array of email addresses as strings.
+* `postalAddresses` String[] - An array of postal as strings.
 * `contactImage` Buffer (optional) - a Buffer representation of the contact's image, if one has been set.
 
 This method will return an empty array (`[]`) if access to Contacts has not been granted.
@@ -99,9 +99,9 @@ The returned object will take the following format:
 * `lastName` String - The contact's last name, or an empty string ('') if one is not set.
 * `nickname` String - The contact's nickname, or an empty string ('') if one is not set.
 * `birthday` String - The contact's birthday in YYYY-MM-DD format, or an empty string ('') if one is not set.
-* `phoneNumbers` Array<String> - An array of phone numbers as strings in [E.164 format](https://en.wikipedia.org/wiki/E.164).
-* `emailAddresses` Array<String> - An array of email addresses as strings.
-* `postalAddresses` Array<String> - An array of postal as strings.
+* `phoneNumbers` String[] - An array of phone numbers as strings in [E.164 format](https://en.wikipedia.org/wiki/E.164).
+* `emailAddresses` String[] - An array of email addresses as strings.
+* `postalAddresses` String[] - An array of postal as strings.
 * `contactImage` Buffer (optional) - a Buffer representation of the contact's image, if one has been set.
 
 This method will return an empty array (`[]`) if access to Contacts has not been granted.
