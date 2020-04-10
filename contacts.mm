@@ -3,7 +3,7 @@
 
 /***** HELPERS *****/
 
-// Parses and returns an array of email addresses as strings
+// Parses and returns an array of email addresses as strings.
 Napi::Array GetEmailAddresses(Napi::Env env, CNContact *cncontact) {
   int num_email_addresses = [[cncontact emailAddresses] count];
 
@@ -19,7 +19,7 @@ Napi::Array GetEmailAddresses(Napi::Env env, CNContact *cncontact) {
   return email_addresses;
 }
 
-// Parses and returns an array of phone numbers as strings
+// Parses and returns an array of phone numbers as strings.
 Napi::Array GetPhoneNumbers(Napi::Env env, CNContact *cncontact) {
   int num_phone_numbers = [[cncontact phoneNumbers] count];
 
@@ -35,7 +35,7 @@ Napi::Array GetPhoneNumbers(Napi::Env env, CNContact *cncontact) {
   return phone_numbers;
 }
 
-// Parses and returns an array of postal addresses as strings
+// Parses and returns an array of postal addresses as strings.
 Napi::Array GetPostalAddresses(Napi::Env env, CNContact *cncontact) {
   int num_postal_addresses = [[cncontact postalAddresses] count];
   Napi::Array postal_addresses = Napi::Array::New(env, num_postal_addresses);
@@ -52,7 +52,7 @@ Napi::Array GetPostalAddresses(Napi::Env env, CNContact *cncontact) {
   return postal_addresses;
 }
 
-// Parses and returns birthdays as strings in YYYY-MM-DD format
+// Parses and returns birthdays as strings in YYYY-MM-DD format.
 std::string GetBirthday(CNContact *cncontact) {
   std::string result;
 
@@ -79,7 +79,7 @@ Napi::Buffer<uint8_t> GetContactImage(Napi::Env env, CNContact *cncontact) {
   return Napi::Buffer<uint8_t>::Copy(env, &data[0], data.size());
 }
 
-// Creates an object containing all properties of a macOS contact
+// Creates an object containing all properties of a macOS contact.
 Napi::Object CreateContact(Napi::Env env, CNContact *cncontact) {
   Napi::Object contact = Napi::Object::New(env);
 
@@ -112,7 +112,7 @@ Napi::Object CreateContact(Napi::Env env, CNContact *cncontact) {
 }
 
 // Parses an array of phone number strings and converts them to an NSArray of
-// CNPhoneNumbers
+// CNPhoneNumbers.
 NSArray *ParsePhoneNumbers(Napi::Array phone_number_data) {
   NSMutableArray *phone_numbers = [[NSMutableArray alloc] init];
 
@@ -132,7 +132,7 @@ NSArray *ParsePhoneNumbers(Napi::Array phone_number_data) {
 }
 
 // Parses an array of email address strings and converts them to an NSArray of
-// NSStrings
+// NSStrings.
 NSArray *ParseEmailAddresses(Napi::Array email_address_data) {
   NSMutableArray *email_addresses = [[NSMutableArray alloc] init];
 
@@ -150,7 +150,7 @@ NSArray *ParseEmailAddresses(Napi::Array email_address_data) {
 }
 
 // Parses a string in YYYY-MM-DD format and converts it to an NSDatComponents
-// object
+// object.
 NSDateComponents *ParseBirthday(std::string birth_day) {
   NSString *bday = [NSString stringWithUTF8String:birth_day.c_str()];
   NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
@@ -168,7 +168,7 @@ NSDateComponents *ParseBirthday(std::string birth_day) {
 }
 
 // Returns a status indicating whether or not the user has authorized Contacts
-// access
+// access.
 CNAuthorizationStatus AuthStatus() {
   CNEntityType entityType = CNEntityTypeContacts;
   return [CNContactStore authorizationStatusForEntityType:entityType];
@@ -186,7 +186,7 @@ NSArray *GetContactKeys() {
 }
 
 // Returns all contacts in the CNContactStore matching a specified name string
-// predicate
+// predicate.
 NSArray *FindContacts(const std::string &name_string) {
   CNContactStore *addressBook = [[CNContactStore alloc] init];
 
@@ -199,7 +199,7 @@ NSArray *FindContacts(const std::string &name_string) {
 }
 
 // Creates a new CNContact in order to update, delete, or add it to the
-// CNContactStore
+// CNContactStore.
 CNMutableContact *CreateCNMutableContact(Napi::Object contact_data) {
   CNMutableContact *contact = [[CNMutableContact alloc] init];
 
@@ -247,7 +247,7 @@ CNMutableContact *CreateCNMutableContact(Napi::Object contact_data) {
 
 /***** EXPORTED FUNCTIONS *****/
 
-// Returns the user's Contacts access consent status as a string
+// Returns the user's Contacts access consent status as a string.
 Napi::Value GetAuthStatus(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
   std::string auth_status = "Not Determined";
@@ -264,22 +264,30 @@ Napi::Value GetAuthStatus(const Napi::CallbackInfo &info) {
   return Napi::Value::From(env, auth_status);
 }
 
-// Returns an array of all a user's Contacts as objects
+// Returns an array of all a user's Contacts as objects.
 Napi::Array GetAllContacts(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
   Napi::Array contacts = Napi::Array::New(env);
   CNContactStore *addressBook = [[CNContactStore alloc] init];
+  NSMutableArray *cncontacts = [[NSMutableArray alloc] init];
 
   if (AuthStatus() != CNAuthorizationStatusAuthorized)
     return contacts;
 
-  NSPredicate *predicate =
-      [CNContact predicateForContactsInContainerWithIdentifier:
-                     addressBook.defaultContainerIdentifier];
-  NSArray *cncontacts =
-      [addressBook unifiedContactsMatchingPredicate:predicate
-                                        keysToFetch:GetContactKeys()
-                                              error:nil];
+  NSArray *containers = [addressBook containersMatchingPredicate:nil error:nil];
+
+  int num_containers = [containers count];
+  for (int idx = 0; idx < num_containers; idx++) {
+    CNContainer *container = [containers objectAtIndex:idx];
+    NSPredicate *predicate = [CNContact
+        predicateForContactsInContainerWithIdentifier:[container identifier]];
+    NSArray *container_contacts =
+        [addressBook unifiedContactsMatchingPredicate:predicate
+                                          keysToFetch:GetContactKeys()
+                                                error:nil];
+
+    [cncontacts addObjectsFromArray:container_contacts];
+  }
 
   int num_contacts = [cncontacts count];
   for (int i = 0; i < num_contacts; i++) {
@@ -290,7 +298,7 @@ Napi::Array GetAllContacts(const Napi::CallbackInfo &info) {
   return contacts;
 }
 
-// Returns an array of all Contacts as objects matching a specified string name
+// Returns an array of all Contacts as objects matching a specified string name.
 Napi::Array GetContactsByName(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
   Napi::Array contacts = Napi::Array::New(env);
@@ -310,7 +318,7 @@ Napi::Array GetContactsByName(const Napi::CallbackInfo &info) {
   return contacts;
 }
 
-// Creates and adds a new CNContact to the CNContactStore
+// Creates and adds a new CNContact to the CNContactStore.
 Napi::Boolean AddNewContact(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
   CNContactStore *addressBook = [[CNContactStore alloc] init];
@@ -328,7 +336,7 @@ Napi::Boolean AddNewContact(const Napi::CallbackInfo &info) {
   return Napi::Boolean::New(env, success);
 }
 
-// Removes a CNContact from the CNContactStore
+// Removes a CNContact from the CNContactStore.
 Napi::Value DeleteContact(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
 
@@ -348,7 +356,7 @@ Napi::Value DeleteContact(const Napi::CallbackInfo &info) {
   return Napi::Boolean::New(env, success);
 }
 
-// Updates an existing CNContact in the CNContactStore
+// Updates an existing CNContact in the CNContactStore.
 Napi::Value UpdateContact(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
 
@@ -367,7 +375,7 @@ Napi::Value UpdateContact(const Napi::CallbackInfo &info) {
   return Napi::Boolean::New(env, success);
 }
 
-// Initializes all functions exposed to JS
+// Initializes all functions exposed to JS.
 Napi::Object Init(Napi::Env env, Napi::Object exports) {
   exports.Set(Napi::String::New(env, "getAuthStatus"),
               Napi::Function::New(env, GetAuthStatus));
