@@ -1,6 +1,6 @@
 {
   "name": "node-mac-contacts",
-  "version": "0.2.1",
+  "version": "1.0.0",
   "description": "A native module that allows you to access and manipulate macOS contacts",
   "main": "index.js",
   "scripts": {
@@ -20,7 +20,7 @@
     "electron",
     "native"
   ],
-  "author": "Shelley Vohr (@codebytere)",
+  "author": "Shelley Vohr <shelley.vohr@gmail.com>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/codebytere/node-mac-contacts/issues"
