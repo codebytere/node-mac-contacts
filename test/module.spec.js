@@ -20,18 +20,30 @@ describe('node-mac-contacts', () => {
     })
   })
 
-  describe('getContactsByName(name)', () => {
+  describe('getContactsByName(name[, extraProperties])', () => {
     it('should throw if name is not a string', () => {
       expect(() => {
         getContactsByName(12345)
       }).to.throw(/name must be a string/)
     })
+
+    it('should throw if extraProperties is not an array', () => {
+      expect(() => {
+        getContactsByName('jim-bob', 12345)
+      }).to.throw(/extraProperties must be an array/)
+    })
   })
 
-  describe('getAllContacts()', () => {
+  describe('getAllContacts([extraProperties])', () => {
     it('should return an array', () => {
       const contacts = getAllContacts()
       expect(contacts).to.be.an('array')
+    })
+
+    it('should throw if extraProperties is not an array', () => {
+      expect(() => {
+        getAllContacts('tsk-bad-array')
+      }).to.throw(/extraProperties must be an array/)
     })
   })
 
