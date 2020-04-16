@@ -1,9 +1,23 @@
 const contacts = require('bindings')('contacts.node')
 
-function getContactsByName(name) {
-  if (typeof name !== 'string') throw new TypeError('name must be a string')
+function getAllContacts(extraProperties = []) {
+  if (Array.isArray(extraProperties)) {
+    throw new TypeError('extraProperties must be an array')
+  }
 
-  return contacts.getContactsByName.call(this, name)
+  return contacts.getAllContacts.call(this, extraProperties)
+}
+
+function getContactsByName(name, extraProperties = []) {
+  if (typeof name !== 'string') {
+    throw new TypeError('name must be a string')
+  }
+
+  if (Array.isArray(extraProperties)) {
+    throw new TypeError('extraProperties must be an array')
+  }
+
+  return contacts.getContactsByName.call(this, name, extraProperties)
 }
 
 function addNewContact(contact) {
@@ -17,16 +31,25 @@ function addNewContact(contact) {
     const hasPhoneNumbers = contact.hasOwnProperty('phoneNumbers')
     const hasEmailAddresses = contact.hasOwnProperty('emailAddresses')
 
-    if (hasFirstName && typeof contact.firstName !== 'string')
+    if (hasFirstName && typeof contact.firstName !== 'string') {
       throw new TypeError('firstName must be a string')
-    if (hasLastName && typeof contact.lastName !== 'string')
+    }
+
+    if (hasLastName && typeof contact.lastName !== 'string') {
       throw new TypeError('lastName must be a string')
-    if (hasNickname && typeof contact.nickname !== 'string')
+    }
+
+    if (hasNickname && typeof contact.nickname !== 'string') {
       throw new TypeError('nickname must be a string')
-    if (hasPhoneNumbers && !Array.isArray(contact.phoneNumbers))
+    }
+
+    if (hasPhoneNumbers && !Array.isArray(contact.phoneNumbers)) {
       throw new TypeError('phoneNumbers must be an array')
-    if (hasEmailAddresses && !Array.isArray(contact.emailAddresses))
+    }
+
+    if (hasEmailAddresses && !Array.isArray(contact.emailAddresses)) {
       throw new TypeError('emailAddresses must be an array')
+    }
 
     if (hasBirthday) {
       const datePattern = /^\d{4}\-(0[1-9]|1[012])\-(0[1-9]|[12][0-9]|3[01])$/
@@ -52,16 +75,25 @@ function updateContact(contact) {
     const hasPhoneNumbers = contact.hasOwnProperty('phoneNumbers')
     const hasEmailAddresses = contact.hasOwnProperty('emailAddresses')
 
-    if (hasFirstName && typeof contact.firstName !== 'string')
+    if (hasFirstName && typeof contact.firstName !== 'string') {
       throw new TypeError('firstName must be a string')
-    if (hasLastName && typeof contact.lastName !== 'string')
+    }
+
+    if (hasLastName && typeof contact.lastName !== 'string') {
       throw new TypeError('lastName must be a string')
-    if (hasNickname && typeof contact.nickname !== 'string')
+    }
+
+    if (hasNickname && typeof contact.nickname !== 'string') {
       throw new TypeError('nickname must be a string')
-    if (hasPhoneNumbers && !Array.isArray(contact.phoneNumbers))
+    }
+
+    if (hasPhoneNumbers && !Array.isArray(contact.phoneNumbers)) {
       throw new TypeError('phoneNumbers must be an array')
-    if (hasEmailAddresses && !Array.isArray(contact.emailAddresses))
+    }
+
+    if (hasEmailAddresses && !Array.isArray(contact.emailAddresses)) {
       throw new TypeError('emailAddresses must be an array')
+    }
 
     if (hasBirthday) {
       const datePattern = /^\d{4}\-(0[1-9]|1[012])\-(0[1-9]|[12][0-9]|3[01])$/
@@ -77,14 +109,16 @@ function updateContact(contact) {
 }
 
 function deleteContact(name) {
-  if (typeof name !== 'string') throw new TypeError('name must be a string')
+  if (typeof name !== 'string') {
+    throw new TypeError('name must be a string')
+  }
 
   return contacts.deleteContact.call(this, name)
 }
 
 module.exports = {
   getAuthStatus: contacts.getAuthStatus,
-  getAllContacts: contacts.getAllContacts,
+  getAllContacts,
   getContactsByName,
   addNewContact,
   deleteContact,

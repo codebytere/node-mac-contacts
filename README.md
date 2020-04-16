@@ -46,7 +46,9 @@ console.log(`Authorization access to contacts is: ${authStatus}`)
 */
 ```
 
-### contacts.getAllContacts()
+### contacts.getAllContacts([extraProperties])
+
+* `extraProperties` string[] (optional) - an array of extra contact properties to fetch that can be any of: `jobTitle`, `departmentName`, `organizationName`, `middleName`, `note`, `contactImage`, or `contactThumbnailImage`.
 
 Returns `Array<Object>` - Returns an array of contact objects.
 
@@ -59,7 +61,13 @@ The returned objects will take the following format:
 * `phoneNumbers` String[] - An array of phone numbers as strings in [E.164 format](https://en.wikipedia.org/wiki/E.164).
 * `emailAddresses` String[] - An array of email addresses as strings.
 * `postalAddresses` String[] - An array of postal as strings.
-* `contactImage` Buffer (optional) - a Buffer representation of the contact's image, if one has been set.
+* `jobTitle` String (optional) - The contact's job title.
+* `departmentName` String (optional) - The name of the department associated with the contact.
+* `organizationName`  String (optional) - The name of the organization associated with the contact.
+* `middleName` String (optional) - The contact's middle name.
+* `note` String (optional) - The note associated with the contact.
+* `contactImage` Buffer (optional) - a Buffer representation of the contact's profile picture.
+* `contactThumbnailImage` Buffer (optional) - a Buffer representation of The thumbnail version of the contact’s profile picture.
 
 This method will return an empty array (`[]`) if access to Contacts has not been granted.
 
@@ -77,17 +85,16 @@ console.log(allContacts[0])
     nickname: 'Johnny',
     birthday: '1970-01-01',
     phoneNumbers: [ +11234566789' ],
-    emailAddresses: [ 'johnny@appleseed.com' ] 
-    postalAddresses: [ '123 Pine Tree Way\nBlack Oak, Arkansas 72414\nUnited States' ],
-    contactImage: <Buffer ff d8 ff e0 00 10 4a 46 49 46 00 01 01 00 00 48 00 48 00 00 ff e1 00 4c 45 78 69 66 00 00 4d 4d 00 2a 00 00 00 08 00 01 87 69 00 04 00 00 00 01 00 00 ... 139493 more bytes>
+    emailAddresses: [ 'johnny@appleseed.com' ],
+    postalAddresses: [ '123 Pine Tree Way\nBlack Oak, Arkansas 72414\nUnited States' ]
   }
 ]
 */
 ```
 
-### contacts.getContactsByName(name)
+### contacts.getContactsByName(name[, extraProperties])
 
-* `name` String (required) - The first, last, or full name of a contact.
+* `extraProperties` string[] (optional) - an array of extra contact properties to fetch that can be any of: `jobTitle`, `departmentName`, `organizationName`, `middleName`, `note`, `contactImage`, or `contactThumbnailImage`.
 
 Returns `Array<Object>` - Returns an array of contact objects where either the first or last name of the contact matches `name`.
 
@@ -102,7 +109,13 @@ The returned object will take the following format:
 * `phoneNumbers` String[] - An array of phone numbers as strings in [E.164 format](https://en.wikipedia.org/wiki/E.164).
 * `emailAddresses` String[] - An array of email addresses as strings.
 * `postalAddresses` String[] - An array of postal as strings.
-* `contactImage` Buffer (optional) - a Buffer representation of the contact's image, if one has been set.
+* `jobTitle` String (optional) - The contact's job title.
+* `departmentName` String (optional) - The name of the department associated with the contact.
+* `organizationName`  String (optional) - The name of the organization associated with the contact.
+* `middleName` String (optional) - The contact's middle name.
+* `note` String (optional) - The note associated with the contact.
+* `contactImage` Buffer (optional) - a Buffer representation of the contact's profile picture.
+* `contactThumbnailImage` Buffer (optional) - a Buffer representation of The thumbnail version of the contact’s profile picture.
 
 This method will return an empty array (`[]`) if access to Contacts has not been granted.
 
@@ -120,9 +133,8 @@ console.log(contacts)
     nickname: 'Johnny',
     birthday: '1970-01-01',
     phoneNumbers: [ +11234566789' ],
-    emailAddresses: [ 'johnny@appleseed.com' ] 
+    emailAddresses: [ 'johnny@appleseed.com' ],
     postalAddresses: [ '123 Pine Tree Way\nBlack Oak, Arkansas 72414\nUnited States' ]
-    contactImage: <Buffer ff d8 ff e0 00 10 4a 46 49 46 00 01 01 00 00 48 00 48 00 00 ff e1 00 4c 45 78 69 66 00 00 4d 4d 00 2a 00 00 00 08 00 01 87 69 00 04 00 00 00 01 00 00 ... 139493 more bytes>
   }
 ]
 */
