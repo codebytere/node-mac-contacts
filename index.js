@@ -1,8 +1,26 @@
 const contacts = require('bindings')('contacts.node')
 
+const validProperties = [
+  'jobTitle',
+  'departmentName',
+  'organizationName',
+  'middleName',
+  'note',
+  'contactImage',
+  'contactThumbnailImage',
+  'instantMessageAddresses',
+  'socialProfiles',
+]
+
 function getAllContacts(extraProperties = []) {
   if (!Array.isArray(extraProperties)) {
     throw new TypeError('extraProperties must be an array')
+  }
+
+  if (!extraProperties.every((p) => validProperties.includes(p))) {
+    throw new TypeError(
+      `properties in extraProperties must be one of ${validProperties.join(', ')}`,
+    )
   }
 
   return contacts.getAllContacts.call(this, extraProperties)
@@ -15,6 +33,12 @@ function getContactsByName(name, extraProperties = []) {
 
   if (!Array.isArray(extraProperties)) {
     throw new TypeError('extraProperties must be an array')
+  }
+
+  if (!extraProperties.every((p) => validProperties.includes(p))) {
+    throw new TypeError(
+      `properties in extraProperties must be one of ${validProperties.join(', ')}`,
+    )
   }
 
   return contacts.getContactsByName.call(this, name, extraProperties)

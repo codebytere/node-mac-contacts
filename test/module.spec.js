@@ -1,17 +1,19 @@
 const { expect } = require('chai')
-const { 
+const {
   getAuthStatus,
   getContactsByName,
   getAllContacts,
   addNewContact,
   deleteContact,
-  updateContact
+  updateContact,
 } = require('../index')
 
 describe('node-mac-contacts', () => {
   describe('getAuthStatus()', () => {
     it('should not throw', () => {
-      expect(() => { getAuthStatus() }).to.not.throw()
+      expect(() => {
+        getAuthStatus()
+      }).to.not.throw()
     })
 
     it('should return a string', () => {
@@ -32,6 +34,15 @@ describe('node-mac-contacts', () => {
         getContactsByName('jim-bob', 12345)
       }).to.throw(/extraProperties must be an array/)
     })
+
+    it('should throw if extraProperties contains invalid properties', () => {
+      const errorMessage =
+        'properties in extraProperties must be one of jobTitle, departmentName, organizationName, middleName, note, contactImage, contactThumbnailImage, instantMessageAddresses, socialProfiles'
+
+      expect(() => {
+        getContactsByName('jim-bob', ['bad-property'])
+      }).to.throw(errorMessage)
+    })
   })
 
   describe('getAllContacts([extraProperties])', () => {
@@ -44,6 +55,15 @@ describe('node-mac-contacts', () => {
       expect(() => {
         getAllContacts('tsk-bad-array')
       }).to.throw(/extraProperties must be an array/)
+    })
+
+    it('should throw if extraProperties contains invalid properties', () => {
+      const errorMessage =
+        'properties in extraProperties must be one of jobTitle, departmentName, organizationName, middleName, note, contactImage, contactThumbnailImage, instantMessageAddresses, socialProfiles'
+
+      expect(() => {
+        getAllContacts(['bad-property'])
+      }).to.throw(errorMessage)
     })
   })
 

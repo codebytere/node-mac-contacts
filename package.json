@@ -7,8 +7,8 @@
     "build": "node-gyp build",
     "build:dev": "node-gyp build --debug",
     "clean": "node-gyp clean",
-    "lint": "prettier --check index.js",
-    "format": "clang-format -i contacts.mm && prettier --write index.js",
+    "lint": "prettier --check '**/*.js'",
+    "format": "clang-format -i contacts.mm && prettier --write '**/*.js'",
     "rebuild": "node-gyp rebuild",
     "rebuild:dev": "node-gyp rebuild --debug",
     "test": "./node_modules/.bin/mocha --reporter spec"
