@@ -52,6 +52,35 @@ Napi::Array GetPostalAddresses(Napi::Env env, CNContact *cncontact) {
   return postal_addresses;
 }
 
+// Parses and returns an array of social profiles as objects.
+Napi::Array GetSocialProfiles(Napi::Env env, CNContact *cncontact) {
+  int num_social_profiles = [[cncontact socialProfiles] count];
+  Napi::Array social_profiles = Napi::Array::New(env, num_social_profiles);
+
+  NSArray *profiles =
+      (NSArray *)[[cncontact socialProfiles] valueForKey:@"value"];
+  for (int i = 0; i < num_social_profiles; i++) {
+    Napi::Object profile = Napi::Object::New(env);
+    CNSocialProfile *social_profile = [profiles objectAtIndex:i];
+
+    profile.Set("service",
+                std::string([social_profile service]
+                                ? [[social_profile service] UTF8String]
+                                : ""));
+    profile.Set("username",
+                std::string([social_profile username]
+                                ? [[social_profile username] UTF8String]
+                                : ""));
+    profile.Set("url", std::string([social_profile urlString]
+                                       ? [[social_profile urlString] UTF8String]
+                                       : ""));
+
+    social_profiles[i] = profile;
+  }
+
+  return social_profiles;
+}
+
 // Parses and returns birthdays as strings in YYYY-MM-DD format.
 std::string GetBirthday(CNContact *cncontact) {
   std::string result;
@@ -135,6 +164,10 @@ Napi::Object CreateContact(Napi::Env env, CNContact *cncontact) {
 
   if ([cncontact isKeyAvailable:CNContactMiddleNameKey]) {
     contact.Set("middleName", std::string([[cncontact middleName] UTF8String]));
+  }
+
+  if ([cncontact isKeyAvailable:CNContactSocialProfilesKey]) {
+    contact.Set("socialProfiles", GetSocialProfiles(env, cncontact));
   }
 
   return contact;
@@ -232,6 +265,12 @@ NSArray *GetContactKeys(Napi::Array requested_keys) {
         [keys addObject:CNContactNoteKey];
       } else if (key == "middleName") {
         [keys addObject:CNContactMiddleNameKey];
+      } else if (key == "socialProfiles") {
+        [keys addObjectsFromArray:@[
+          CNContactSocialProfilesKey, CNSocialProfileServiceKey,
+          CNSocialProfileURLStringKey, CNSocialProfileUsernameKey,
+          CNSocialProfileUserIdentifierKey
+        ]];
       }
     }
   }

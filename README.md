@@ -48,7 +48,7 @@ console.log(`Authorization access to contacts is: ${authStatus}`)
 
 ### contacts.getAllContacts([extraProperties])
 
-* `extraProperties` string[] (optional) - an array of extra contact properties to fetch that can be any of: `jobTitle`, `departmentName`, `organizationName`, `middleName`, `note`, `contactImage`, or `contactThumbnailImage`.
+* `extraProperties` string[] (optional) - an array of extra contact properties to fetch that can be any of: `jobTitle`, `departmentName`, `organizationName`, `middleName`, `note`, `contactImage`, `contactThumbnailImage`, or `socialProfiles`.
 
 Returns `Array<Object>` - Returns an array of contact objects.
 
@@ -68,6 +68,7 @@ The returned objects will take the following format:
 * `note` String (optional) - The note associated with the contact.
 * `contactImage` Buffer (optional) - a Buffer representation of the contact's profile picture.
 * `contactThumbnailImage` Buffer (optional) - a Buffer representation of The thumbnail version of the contact’s profile picture.
+* `socialProfiles` Object[] (optional) - An array of labeled social profiles for a contact.
 
 This method will return an empty array (`[]`) if access to Contacts has not been granted.
 
@@ -77,7 +78,7 @@ Example:
 const allContacts = contacts.getAllContacts()
 
 console.log(allContacts[0])
-/* prints
+/* Prints:
 [
   { 
     firstName: 'Jonathan',
@@ -94,7 +95,7 @@ console.log(allContacts[0])
 
 ### contacts.getContactsByName(name[, extraProperties])
 
-* `extraProperties` string[] (optional) - an array of extra contact properties to fetch that can be any of: `jobTitle`, `departmentName`, `organizationName`, `middleName`, `note`, `contactImage`, or `contactThumbnailImage`.
+* `extraProperties` string[] (optional) - an array of extra contact properties to fetch that can be any of: `jobTitle`, `departmentName`, `organizationName`, `middleName`, `note`, `contactImage`, `contactThumbnailImage`, or `socialProfiles`.
 
 Returns `Array<Object>` - Returns an array of contact objects where either the first or last name of the contact matches `name`.
 
@@ -116,6 +117,7 @@ The returned object will take the following format:
 * `note` String (optional) - The note associated with the contact.
 * `contactImage` Buffer (optional) - a Buffer representation of the contact's profile picture.
 * `contactThumbnailImage` Buffer (optional) - a Buffer representation of The thumbnail version of the contact’s profile picture.
+* `socialProfiles` Object[] (optional) - An array of labeled social profiles for a contact.
 
 This method will return an empty array (`[]`) if access to Contacts has not been granted.
 
@@ -125,7 +127,7 @@ Example:
 const contacts = contacts.getContactsByName('Appleseed')
 
 console.log(contacts)
-/* prints
+/* Prints:
 [
   { 
     firstName: 'Jonathan',

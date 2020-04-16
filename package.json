@@ -4,10 +4,13 @@
   "description": "A native module that allows you to access and manipulate macOS contacts",
   "main": "index.js",
   "scripts": {
-    "build": "node-gyp rebuild",
+    "build": "node-gyp build",
+    "build:dev": "node-gyp build --debug",
     "clean": "node-gyp clean",
     "lint": "prettier --check index.js",
     "format": "clang-format -i contacts.mm && prettier --write index.js",
+    "rebuild": "node-gyp rebuild",
+    "rebuild:dev": "node-gyp rebuild --debug",
     "test": "./node_modules/.bin/mocha --reporter spec"
   },
   "repository": {
