@@ -48,7 +48,7 @@ console.log(`Authorization access to contacts is: ${authStatus}`)
 
 ### contacts.getAllContacts([extraProperties])
 
-* `extraProperties` string[] (optional) - an array of extra contact properties to fetch that can be any of: `jobTitle`, `departmentName`, `organizationName`, `middleName`, `note`, `contactImage`, `contactThumbnailImage`, or `socialProfiles`.
+* `extraProperties` string[] (optional) - an array of extra contact properties to fetch that can be any of: `jobTitle`, `departmentName`, `organizationName`, `middleName`, `note`, `contactImage`, `contactThumbnailImage`, `instantMessageAddresses`, or `socialProfiles`.
 
 Returns `Array<Object>` - Returns an array of contact objects.
 
@@ -69,6 +69,7 @@ The returned objects will take the following format:
 * `contactImage` Buffer (optional) - a Buffer representation of the contact's profile picture.
 * `contactThumbnailImage` Buffer (optional) - a Buffer representation of The thumbnail version of the contact’s profile picture.
 * `socialProfiles` Object[] (optional) - An array of labeled social profiles for a contact.
+* `instantMessageAddresses` Object[]  (optional) - An array of labeled IM addresses for the contact.
 
 This method will return an empty array (`[]`) if access to Contacts has not been granted.
 
@@ -95,7 +96,7 @@ console.log(allContacts[0])
 
 ### contacts.getContactsByName(name[, extraProperties])
 
-* `extraProperties` string[] (optional) - an array of extra contact properties to fetch that can be any of: `jobTitle`, `departmentName`, `organizationName`, `middleName`, `note`, `contactImage`, `contactThumbnailImage`, or `socialProfiles`.
+* `extraProperties` string[] (optional) - an array of extra contact properties to fetch that can be any of: `jobTitle`, `departmentName`, `organizationName`, `middleName`, `note`, `contactImage`, `contactThumbnailImage`, `instantMessageAddresses`, or `socialProfiles`.
 
 Returns `Array<Object>` - Returns an array of contact objects where either the first or last name of the contact matches `name`.
 
@@ -118,6 +119,7 @@ The returned object will take the following format:
 * `contactImage` Buffer (optional) - a Buffer representation of the contact's profile picture.
 * `contactThumbnailImage` Buffer (optional) - a Buffer representation of The thumbnail version of the contact’s profile picture.
 * `socialProfiles` Object[] (optional) - An array of labeled social profiles for a contact.
+* `instantMessageAddresses` Object[]  (optional) - An array of labeled IM addresses for the contact.
 
 This method will return an empty array (`[]`) if access to Contacts has not been granted.
 

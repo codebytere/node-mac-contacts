@@ -81,6 +81,30 @@ Napi::Array GetSocialProfiles(Napi::Env env, CNContact *cncontact) {
   return social_profiles;
 }
 
+// Parses and returns an array of instant message addresses as objects.
+Napi::Array GetInstantMessageAddresses(Napi::Env env, CNContact *cncontact) {
+  int num_im_addresses = [[cncontact instantMessageAddresses] count];
+  Napi::Array im_addresses = Napi::Array::New(env, num_im_addresses);
+
+  NSArray *addresses =
+      (NSArray *)[[cncontact instantMessageAddresses] valueForKey:@"value"];
+  for (int i = 0; i < num_im_addresses; i++) {
+    Napi::Object address = Napi::Object::New(env);
+    CNSocialProfile *im_address = [addresses objectAtIndex:i];
+
+    address.Set("service", std::string([im_address service]
+                                           ? [[im_address service] UTF8String]
+                                           : ""));
+    address.Set("username", std::string([im_address username]
+                                            ? [[im_address username] UTF8String]
+                                            : ""));
+
+    im_addresses[i] = address;
+  }
+
+  return im_addresses;
+}
+
 // Parses and returns birthdays as strings in YYYY-MM-DD format.
 std::string GetBirthday(CNContact *cncontact) {
   std::string result;
@@ -164,6 +188,11 @@ Napi::Object CreateContact(Napi::Env env, CNContact *cncontact) {
 
   if ([cncontact isKeyAvailable:CNContactMiddleNameKey]) {
     contact.Set("middleName", std::string([[cncontact middleName] UTF8String]));
+  }
+
+  if ([cncontact isKeyAvailable:CNContactInstantMessageAddressesKey]) {
+    contact.Set("instantMessageAddresses",
+                GetInstantMessageAddresses(env, cncontact));
   }
 
   if ([cncontact isKeyAvailable:CNContactSocialProfilesKey]) {
@@ -265,6 +294,11 @@ NSArray *GetContactKeys(Napi::Array requested_keys) {
         [keys addObject:CNContactNoteKey];
       } else if (key == "middleName") {
         [keys addObject:CNContactMiddleNameKey];
+      } else if (key == "instantMessageAddresses") {
+        [keys addObjectsFromArray:@[
+          CNContactInstantMessageAddressesKey,
+          CNInstantMessageAddressServiceKey, CNInstantMessageAddressUsernameKey
+        ]];
       } else if (key == "socialProfiles") {
         [keys addObjectsFromArray:@[
           CNContactSocialProfilesKey, CNSocialProfileServiceKey,

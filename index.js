@@ -1,7 +1,7 @@
 const contacts = require('bindings')('contacts.node')
 
 function getAllContacts(extraProperties = []) {
-  if (Array.isArray(extraProperties)) {
+  if (!Array.isArray(extraProperties)) {
     throw new TypeError('extraProperties must be an array')
   }
 
@@ -13,7 +13,7 @@ function getContactsByName(name, extraProperties = []) {
     throw new TypeError('name must be a string')
   }
 
-  if (Array.isArray(extraProperties)) {
+  if (!Array.isArray(extraProperties)) {
     throw new TypeError('extraProperties must be an array')
   }
 
