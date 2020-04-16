@@ -67,10 +67,12 @@ std::string GetBirthday(CNContact *cncontact) {
   return result;
 }
 
-Napi::Buffer<uint8_t> GetContactImage(Napi::Env env, CNContact *cncontact) {
+Napi::Buffer<uint8_t> GetContactImage(Napi::Env env, CNContact *cncontact,
+                                      bool thumbnail) {
   std::vector<uint8_t> data;
 
-  NSData *image_data = [cncontact imageData];
+  NSData *image_data =
+      thumbnail ? [cncontact thumbnailImageData] : [cncontact imageData];
   const uint8 *bytes = (uint8 *)[image_data bytes];
   data.assign(bytes, bytes + [image_data length]);
 
@@ -83,6 +85,8 @@ Napi::Buffer<uint8_t> GetContactImage(Napi::Env env, CNContact *cncontact) {
 Napi::Object CreateContact(Napi::Env env, CNContact *cncontact) {
   Napi::Object contact = Napi::Object::New(env);
 
+  // Default contact properties.
+
   contact.Set("firstName", std::string([[cncontact givenName] UTF8String]));
   contact.Set("lastName", std::string([[cncontact familyName] UTF8String]));
   contact.Set("nickname", std::string([[cncontact nickname] UTF8String]));
@@ -90,22 +94,47 @@ Napi::Object CreateContact(Napi::Env env, CNContact *cncontact) {
   std::string birthday = GetBirthday(cncontact);
   contact.Set("birthday", birthday.empty() ? "" : birthday);
 
-  // Populate phone number array
   Napi::Array phone_numbers = GetPhoneNumbers(env, cncontact);
   contact.Set("phoneNumbers", phone_numbers);
 
-  // Populate email address array
   Napi::Array email_addresses = GetEmailAddresses(env, cncontact);
   contact.Set("emailAddresses", email_addresses);
 
-  // Populate postal address array
   Napi::Array postal_addresses = GetPostalAddresses(env, cncontact);
   contact.Set("postalAddresses", postal_addresses);
 
-  // Populate contact image if one exists.
-  Napi::Buffer<uint8_t> image_buffer = GetContactImage(env, cncontact);
-  if (image_buffer.Length() > 0) {
+  // Optional contact properties.
+
+  if ([cncontact isKeyAvailable:CNContactImageDataKey]) {
+    Napi::Buffer<uint8_t> image_buffer = GetContactImage(env, cncontact, false);
     contact.Set("contactImage", image_buffer);
+  }
+
+  if ([cncontact isKeyAvailable:CNContactThumbnailImageDataKey]) {
+    Napi::Buffer<uint8_t> image_buffer = GetContactImage(env, cncontact, true);
+    contact.Set("contactThumbnailImage", image_buffer);
+  }
+
+  if ([cncontact isKeyAvailable:CNContactJobTitleKey]) {
+    contact.Set("jobTitle", std::string([[cncontact jobTitle] UTF8String]));
+  }
+
+  if ([cncontact isKeyAvailable:CNContactDepartmentNameKey]) {
+    contact.Set("departmentName",
+                std::string([[cncontact departmentName] UTF8String]));
+  }
+
+  if ([cncontact isKeyAvailable:CNContactOrganizationNameKey]) {
+    contact.Set("organizationName",
+                std::string([[cncontact organizationName] UTF8String]));
+  }
+
+  if ([cncontact isKeyAvailable:CNContactNoteKey]) {
+    contact.Set("note", std::string([[cncontact note] UTF8String]));
+  }
+
+  if ([cncontact isKeyAvailable:CNContactMiddleNameKey]) {
+    contact.Set("middleName", std::string([[cncontact middleName] UTF8String]));
   }
 
   return contact;
@@ -174,28 +203,54 @@ CNAuthorizationStatus AuthStatus() {
   return [CNContactStore authorizationStatusForEntityType:entityType];
 }
 
-// Returns the set of Contacts properties to retrieve from the CNContactStore
-NSArray *GetContactKeys() {
-  NSArray *keys = @[
+// Returns the set of Contacts properties to retrieve from the CNContactStore.
+NSArray *GetContactKeys(Napi::Array requested_keys) {
+  NSMutableArray *keys = [NSMutableArray arrayWithArray:@[
     CNContactGivenNameKey, CNContactFamilyNameKey, CNContactPhoneNumbersKey,
     CNContactEmailAddressesKey, CNContactNicknameKey,
-    CNContactPostalAddressesKey, CNContactBirthdayKey, CNContactImageDataKey
-  ];
+    CNContactPostalAddressesKey, CNContactBirthdayKey
+  ]];
+
+  // Iterate through requested keys and add each to the default set.
+  int num_keys = requested_keys.Length();
+  if (num_keys > 0) {
+    for (int i = 0; i < num_keys; i++) {
+      Napi::Value val = requested_keys[i];
+      std::string key = val.As<Napi::String>().Utf8Value();
+
+      if (key == "contactImage") {
+        [keys addObject:CNContactImageDataKey];
+      } else if (key == "contactThumbnailImage") {
+        [keys addObject:CNContactThumbnailImageDataKey];
+      } else if (key == "jobTitle") {
+        [keys addObject:CNContactJobTitleKey];
+      } else if (key == "departmentName") {
+        [keys addObject:CNContactDepartmentNameKey];
+      } else if (key == "organizationName") {
+        [keys addObject:CNContactOrganizationNameKey];
+      } else if (key == "note") {
+        [keys addObject:CNContactNoteKey];
+      } else if (key == "middleName") {
+        [keys addObject:CNContactMiddleNameKey];
+      }
+    }
+  }
 
   return keys;
 }
 
 // Returns all contacts in the CNContactStore matching a specified name string
 // predicate.
-NSArray *FindContacts(const std::string &name_string) {
+NSArray *FindContacts(const std::string &name_string, Napi::Array extra_keys) {
   CNContactStore *addressBook = [[CNContactStore alloc] init];
 
   NSString *name = [NSString stringWithUTF8String:name_string.c_str()];
   NSPredicate *predicate = [CNContact predicateForContactsMatchingName:name];
 
-  return [addressBook unifiedContactsMatchingPredicate:predicate
-                                           keysToFetch:GetContactKeys()
-                                                 error:nil];
+  return
+      [addressBook unifiedContactsMatchingPredicate:predicate
+                                        keysToFetch:GetContactKeys(extra_keys)
+                                              error:nil];
 }
 
 // Creates a new CNContact in order to update, delete, or add it to the
@@ -267,9 +322,11 @@ Napi::Value GetAuthStatus(const Napi::CallbackInfo &info) {
 // Returns an array of all a user's Contacts as objects.
 Napi::Array GetAllContacts(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
+
   Napi::Array contacts = Napi::Array::New(env);
   CNContactStore *addressBook = [[CNContactStore alloc] init];
   NSMutableArray *cncontacts = [[NSMutableArray alloc] init];
+  Napi::Array extra_keys = info[0].As<Napi::Array>();
 
   if (AuthStatus() != CNAuthorizationStatusAuthorized)
     return contacts;
@@ -283,7 +340,7 @@ Napi::Array GetAllContacts(const Napi::CallbackInfo &info) {
         predicateForContactsInContainerWithIdentifier:[container identifier]];
     NSArray *container_contacts =
         [addressBook unifiedContactsMatchingPredicate:predicate
-                                          keysToFetch:GetContactKeys()
+                                          keysToFetch:GetContactKeys(extra_keys)
                                                 error:nil];
 
     [cncontacts addObjectsFromArray:container_contacts];
@@ -307,7 +364,8 @@ Napi::Array GetContactsByName(const Napi::CallbackInfo &info) {
     return contacts;
 
   const std::string name_string = info[0].As<Napi::String>().Utf8Value();
-  NSArray *cncontacts = FindContacts(name_string);
+  Napi::Array extra_keys = info[1].As<Napi::Array>();
+  NSArray *cncontacts = FindContacts(name_string, extra_keys);
 
   int num_contacts = [cncontacts count];
   for (int i = 0; i < num_contacts; i++) {
@@ -344,7 +402,7 @@ Napi::Value DeleteContact(const Napi::CallbackInfo &info) {
     return Napi::Boolean::New(env, false);
 
   const std::string name_string = info[0].As<Napi::String>().Utf8Value();
-  NSArray *cncontacts = FindContacts(name_string);
+  NSArray *cncontacts = FindContacts(name_string, Napi::Array::New(env));
 
   CNContact *contact = (CNContact *)[cncontacts objectAtIndex:0];
   CNSaveRequest *request = [[CNSaveRequest alloc] init];
