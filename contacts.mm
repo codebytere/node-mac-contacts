@@ -251,7 +251,7 @@ NSDateComponents *ParseBirthday(std::string birth_day) {
 
   NSCalendar *cal = [NSCalendar currentCalendar];
   unsigned unitFlags =
-      NSYearCalendarUnit | NSMonthCalendarUnit | NSDayCalendarUnit;
+      NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay;
   NSDateComponents *birthday_components = [cal components:unitFlags
                                                  fromDate:bday_date];
 
