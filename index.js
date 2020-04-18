@@ -1,5 +1,10 @@
 const contacts = require('bindings')('contacts.node')
 
+const { EventEmitter } = require('events')
+
+const listener = new EventEmitter()
+contacts.handleEmit(listener.emit.bind(listener))
+
 const validProperties = [
   'jobTitle',
   'departmentName',
@@ -19,7 +24,9 @@ function getAllContacts(extraProperties = []) {
 
   if (!extraProperties.every((p) => validProperties.includes(p))) {
     throw new TypeError(
-      `properties in extraProperties must be one of ${validProperties.join(', ')}`,
+      `properties in extraProperties must be one of ${validProperties.join(
+        ', ',
+      )}`,
     )
   }
 
@@ -37,7 +44,9 @@ function getContactsByName(name, extraProperties = []) {
 
   if (!extraProperties.every((p) => validProperties.includes(p))) {
     throw new TypeError(
-      `properties in extraProperties must be one of ${validProperties.join(', ')}`,
+      `properties in extraProperties must be one of ${validProperties.join(
+        ', ',
+      )}`,
     )
   }
 
@@ -141,6 +150,7 @@ function deleteContact(name) {
 }
 
 module.exports = {
+  listener,
   getAuthStatus: contacts.getAuthStatus,
   getAllContacts,
   getContactsByName,

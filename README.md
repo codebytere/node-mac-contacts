@@ -22,7 +22,7 @@ In your app, you should put the reason you're requesting to manipulate user's co
 
 ## API
 
-### contacts.getAuthStatus()
+### `contacts.getAuthStatus()`
 
 Returns `String` - Can be one of 'Not Determined', 'Denied', 'Authorized', or 'Restricted'.
 
@@ -46,7 +46,7 @@ console.log(`Authorization access to contacts is: ${authStatus}`)
 */
 ```
 
-### contacts.getAllContacts([extraProperties])
+### `contacts.getAllContacts([extraProperties])`
 
 * `extraProperties` string[] (optional) - an array of extra contact properties to fetch that can be any of: `jobTitle`, `departmentName`, `organizationName`, `middleName`, `note`, `contactImage`, `contactThumbnailImage`, `instantMessageAddresses`, or `socialProfiles`.
 
@@ -94,7 +94,7 @@ console.log(allContacts[0])
 */
 ```
 
-### contacts.getContactsByName(name[, extraProperties])
+### `contacts.getContactsByName(name[, extraProperties])`
 
 * `extraProperties` string[] (optional) - an array of extra contact properties to fetch that can be any of: `jobTitle`, `departmentName`, `organizationName`, `middleName`, `note`, `contactImage`, `contactThumbnailImage`, `instantMessageAddresses`, or `socialProfiles`.
 
@@ -144,7 +144,7 @@ console.log(contacts)
 */
 ```
 
-### contacts.addNewContact(contact)
+### `contacts.addNewContact(contact)`
 
 * `contact` Object
   * `firstName` String (required) - The first name of the contact.
@@ -175,7 +175,7 @@ const success = contacts.addNewContact({
 console.log(`New contact was ${success ? 'saved' : 'not saved'}.`)
 ```
 
-### contacts.deleteContact(name)
+### `contacts.deleteContact(name)`
 
 * `name` String (required) - The first, last, or full name of a contact.
 
@@ -197,7 +197,7 @@ const deleted = contacts.deleteContact(name)
 console.log(`Contact ${name} was ${deleted ? 'deleted' : 'not deleted'}.`)
 ```
 
-### contacts.updateContact(contact)
+### `contacts.updateContact(contact)`
 
 * `contact` Object
   * `firstName` String (required) - The first name of the contact.
@@ -226,4 +226,27 @@ const updated = contacts.updateContact({
 })
 
 console.log(`Contact was ${updated ? 'updated' : 'not updated'}.`)
+```
+
+### `contacts.listener`
+
+This module exposes an `EventEmitter`, which can be used to listen to potential changes to the `CNContactStore`. When a contact is changed either with methods contained in this module, or manually by a user, the `contact-changed` event will be emitted.
+
+Example:
+
+```js
+const { listener, addNewContact } = require('node-mac-contacts')
+
+addNewContact({
+  firstName: 'William',
+  lastName: 'Grapeseed',
+  nickname: 'Billy',
+  birthday: '1990-09-09',
+  phoneNumbers: ['+1234567890'],
+  emailAddresses: ['billy@grapeseed.com'],
+})
+
+listener.on('contact-changed', () => {
+  console.log('A contact was changed!')
+})
 ```

@@ -6,6 +6,7 @@ const {
   addNewContact,
   deleteContact,
   updateContact,
+  listener,
 } = require('../index')
 
 describe('node-mac-contacts', () => {
@@ -168,6 +169,23 @@ describe('node-mac-contacts', () => {
       expect(() => {
         updateContact({ emailAddresses: 1 })
       }).to.throw(/emailAddresses must be an array/)
+    })
+  })
+
+  describe('listener', () => {
+    it('emits an event when the contact is changed', (done) => {
+      addNewContact({
+        firstName: 'William',
+        lastName: 'Grapeseed',
+        nickname: 'Billy',
+        birthday: '1990-09-09',
+        phoneNumbers: ['+1234567890'],
+        emailAddresses: ['billy@grapeseed.com'],
+      })
+
+      listener.once('contact-changed', () => {
+        done()
+      })
     })
   })
 })
