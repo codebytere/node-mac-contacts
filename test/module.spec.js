@@ -9,6 +9,10 @@ const {
   listener,
 } = require('../index')
 
+const isCI = require('is-ci')
+const ifit = (condition) => (condition ? it : it.skip)
+const ifdescribe = (condition) => (condition ? describe : describe.skip)
+
 describe('node-mac-contacts', () => {
   describe('getAuthStatus()', () => {
     it('should not throw', () => {
@@ -92,7 +96,7 @@ describe('node-mac-contacts', () => {
       }).to.throw(/emailAddresses must be an array/)
     })
 
-    it('should successfully add a contact', () => {
+    ifit(!isCI)('should successfully add a contact', () => {
       const success = addNewContact({
         firstName: 'William',
         lastName: 'Grapeseed',
@@ -128,7 +132,7 @@ describe('node-mac-contacts', () => {
       }).to.throw(errorMessage)
     })
 
-    it('should retrieve a contact by name predicates', () => {
+    ifit(!isCI)('should retrieve a contact by name predicates', () => {
       addNewContact({
         firstName: 'Sherlock',
         lastName: 'Holmes',
@@ -202,7 +206,7 @@ describe('node-mac-contacts', () => {
     })
   })
 
-  describe('listener', () => {
+  ifdescribe(!isCI)('listener', () => {
     afterEach(() => {
       if (listener.isListening()) {
         listener.remove()
@@ -219,7 +223,7 @@ describe('node-mac-contacts', () => {
       expect(() => {
         listener.setup()
         listener.setup()
-      }).to.throw(/An observer already observing/)
+      }).to.throw(/An observer is already observing/)
     })
 
     it('emits an event when the contact is changed', (done) => {
