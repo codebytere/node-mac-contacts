@@ -2,6 +2,7 @@
 #include <napi.h>
 
 Napi::ThreadSafeFunction ts_fn;
+id observer;
 
 /***** HELPERS *****/
 
@@ -508,12 +509,12 @@ Napi::Boolean UpdateContact(const Napi::CallbackInfo &info) {
   return Napi::Boolean::New(env, success);
 }
 
-Napi::Boolean HandleEmit(const Napi::CallbackInfo &info) {
+Napi::Boolean SetupListener(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
   ts_fn = Napi::ThreadSafeFunction::New(env, info[0].As<Napi::Function>(),
                                         "emitCallback", 0, 1);
 
-  [[NSNotificationCenter defaultCenter]
+  observer = [[NSNotificationCenter defaultCenter]
       addObserverForName:CNContactStoreDidChangeNotification
                   object:nil
                    queue:[NSOperationQueue mainQueue]
@@ -523,16 +524,32 @@ Napi::Boolean HandleEmit(const Napi::CallbackInfo &info) {
                   js_cb.Call({Napi::String::New(env, value)});
                 };
                 ts_fn.BlockingCall("contact-changed", callback);
-                ts_fn.Release();
               }];
+
+  return Napi::Boolean::New(env, true);
+}
+
+Napi::Boolean RemoveListener(const Napi::CallbackInfo &info) {
+  Napi::Env env = info.Env();
+
+  if (!observer) {
+    Napi::Error::New(env, "No observers are currently listening")
+        .ThrowAsJavaScriptException();
+    return Napi::Boolean::New(env, false);
+  }
+
+  ts_fn.Release();
+  [[NSNotificationCenter defaultCenter] removeObserver:observer];
 
   return Napi::Boolean::New(env, true);
 }
 
 // Initializes all functions exposed to JS.
 Napi::Object Init(Napi::Env env, Napi::Object exports) {
-  exports.Set(Napi::String::New(env, "handleEmit"),
-              Napi::Function::New(env, HandleEmit));
+  exports.Set(Napi::String::New(env, "setupListener"),
+              Napi::Function::New(env, SetupListener));
+  exports.Set(Napi::String::New(env, "removeListener"),
+              Napi::Function::New(env, RemoveListener));
   exports.Set(Napi::String::New(env, "getAuthStatus"),
               Napi::Function::New(env, GetAuthStatus));
   exports.Set(Napi::String::New(env, "getAllContacts"),

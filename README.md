@@ -34,6 +34,8 @@ Return Value Descriptions:
 * 'Denied' - The user explicitly denied access to contact data for the application.
 * 'Authorized' - The application is authorized to access contact data.
 
+Example Usage:
+
 ```js
 const authStatus = contacts.getAuthStatus()
 
@@ -73,7 +75,7 @@ The returned objects will take the following format:
 
 This method will return an empty array (`[]`) if access to Contacts has not been granted.
 
-Example:
+Example Usage:
 
 ```js
 const allContacts = contacts.getAllContacts()
@@ -123,7 +125,7 @@ The returned object will take the following format:
 
 This method will return an empty array (`[]`) if access to Contacts has not been granted.
 
-Example:
+Example Usage:
 
 ```js
 const contacts = contacts.getContactsByName('Appleseed')
@@ -160,7 +162,7 @@ Creates and save a new contact to the user's contacts database.
 
 This method will return `false` if access to Contacts has not been granted.
 
-Example:
+Example Usage:
 
 ```js
 const success = contacts.addNewContact({
@@ -188,7 +190,7 @@ However, you should take care to specify `name` to such a degree that you can be
 
 This method will return `false` if access to Contacts has not been granted.
 
-Example:
+Example Usage:
 
 ```js
 const name = 'Jonathan Appleseed'
@@ -215,7 +217,7 @@ You should take care to specify parameters to the `contact` object to such a deg
 
 This method will return `false` if access to Contacts has not been granted.
 
-Example:
+Example Usage:
 
 ```js
 // Change contact's nickname from Billy -> Will
@@ -232,10 +234,14 @@ console.log(`Contact was ${updated ? 'updated' : 'not updated'}.`)
 
 This module exposes an `EventEmitter`, which can be used to listen to potential changes to the `CNContactStore`. When a contact is changed either with methods contained in this module, or manually by a user, the `contact-changed` event will be emitted.
 
-Example:
+Owing to the underlying architecture of this module, the listener must be manually managed; before use you must initialize it with `listener.setup()` and when you are finished listening for events you must remove it with `listener.remove()`
+
+Example Usage:
 
 ```js
 const { listener, addNewContact } = require('node-mac-contacts')
+
+listener.setup()
 
 addNewContact({
   firstName: 'William',
@@ -246,7 +252,8 @@ addNewContact({
   emailAddresses: ['billy@grapeseed.com'],
 })
 
-listener.on('contact-changed', () => {
+listener.once('contact-changed', () => {
   console.log('A contact was changed!')
+  listener.remove()
 })
 ```

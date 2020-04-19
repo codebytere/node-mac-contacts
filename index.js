@@ -3,9 +3,16 @@ const contacts = require('bindings')('contacts.node')
 const { EventEmitter } = require('events')
 
 const listener = new EventEmitter()
-contacts.handleEmit(listener.emit.bind(listener))
 
-const validProperties = [
+listener.setup = () => {
+  contacts.setupListener(listener.emit.bind(listener))
+}
+
+listener.remove = () => {
+  contacts.removeListener()
+}
+
+const optionalProperties = [
   'jobTitle',
   'departmentName',
   'organizationName',
@@ -22,9 +29,9 @@ function getAllContacts(extraProperties = []) {
     throw new TypeError('extraProperties must be an array')
   }
 
-  if (!extraProperties.every((p) => validProperties.includes(p))) {
+  if (!extraProperties.every((p) => optionalProperties.includes(p))) {
     throw new TypeError(
-      `properties in extraProperties must be one of ${validProperties.join(
+      `properties in extraProperties must be one of ${optionalProperties.join(
         ', ',
       )}`,
     )
@@ -42,9 +49,9 @@ function getContactsByName(name, extraProperties = []) {
     throw new TypeError('extraProperties must be an array')
   }
 
-  if (!extraProperties.every((p) => validProperties.includes(p))) {
+  if (!extraProperties.every((p) => optionalProperties.includes(p))) {
     throw new TypeError(
-      `properties in extraProperties must be one of ${validProperties.join(
+      `properties in extraProperties must be one of ${optionalProperties.join(
         ', ',
       )}`,
     )

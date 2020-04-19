@@ -23,29 +23,6 @@ describe('node-mac-contacts', () => {
     })
   })
 
-  describe('getContactsByName(name[, extraProperties])', () => {
-    it('should throw if name is not a string', () => {
-      expect(() => {
-        getContactsByName(12345)
-      }).to.throw(/name must be a string/)
-    })
-
-    it('should throw if extraProperties is not an array', () => {
-      expect(() => {
-        getContactsByName('jim-bob', 12345)
-      }).to.throw(/extraProperties must be an array/)
-    })
-
-    it('should throw if extraProperties contains invalid properties', () => {
-      const errorMessage =
-        'properties in extraProperties must be one of jobTitle, departmentName, organizationName, middleName, note, contactImage, contactThumbnailImage, instantMessageAddresses, socialProfiles'
-
-      expect(() => {
-        getContactsByName('jim-bob', ['bad-property'])
-      }).to.throw(errorMessage)
-    })
-  })
-
   describe('getAllContacts([extraProperties])', () => {
     it('should return an array', () => {
       const contacts = getAllContacts()
@@ -114,6 +91,59 @@ describe('node-mac-contacts', () => {
         addNewContact({ emailAddresses: 1 })
       }).to.throw(/emailAddresses must be an array/)
     })
+
+    it('should successfully add a contact', () => {
+      const success = addNewContact({
+        firstName: 'William',
+        lastName: 'Grapeseed',
+        nickname: 'Billy',
+        birthday: '1990-09-09',
+        phoneNumbers: ['+1234567890'],
+        emailAddresses: ['billy@grapeseed.com'],
+      })
+
+      expect(success).to.be.true
+    })
+  })
+
+  describe('getContactsByName(name[, extraProperties])', () => {
+    it('should throw if name is not a string', () => {
+      expect(() => {
+        getContactsByName(12345)
+      }).to.throw(/name must be a string/)
+    })
+
+    it('should throw if extraProperties is not an array', () => {
+      expect(() => {
+        getContactsByName('jim-bob', 12345)
+      }).to.throw(/extraProperties must be an array/)
+    })
+
+    it('should throw if extraProperties contains invalid properties', () => {
+      const errorMessage =
+        'properties in extraProperties must be one of jobTitle, departmentName, organizationName, middleName, note, contactImage, contactThumbnailImage, instantMessageAddresses, socialProfiles'
+
+      expect(() => {
+        getContactsByName('jim-bob', ['bad-property'])
+      }).to.throw(errorMessage)
+    })
+
+    it('should retrieve a contact by name predicates', () => {
+      addNewContact({
+        firstName: 'Sherlock',
+        lastName: 'Holmes',
+        nickname: 'Sherllock',
+        birthday: '1854-01-06',
+        phoneNumbers: ['+1234567890'],
+        emailAddresses: ['sherlock@holmes.com'],
+      })
+
+      const contacts = getContactsByName('Sherlock Holmes')
+      expect(contacts).to.be.an('array').of.length.gte(1)
+
+      const contact = contacts[0]
+      expect(contact.firstName).to.eql('Sherlock')
+    })
   })
 
   describe('deleteContact(name)', () => {
@@ -173,7 +203,15 @@ describe('node-mac-contacts', () => {
   })
 
   describe('listener', () => {
+    it('throws when trying to remove a nonexistent listener', () => {
+      expect(() => {
+        listener.remove()
+      }).to.throw(/No observers are currently listening/)
+    })
+
     it('emits an event when the contact is changed', (done) => {
+      listener.setup()
+
       addNewContact({
         firstName: 'William',
         lastName: 'Grapeseed',
@@ -184,6 +222,7 @@ describe('node-mac-contacts', () => {
       })
 
       listener.once('contact-changed', () => {
+        listener.remove()
         done()
       })
     })
