@@ -12,6 +12,8 @@ listener.remove = () => {
   contacts.removeListener()
 }
 
+listener.isListening = () => contacts.isListening()
+
 const optionalProperties = [
   'jobTitle',
   'departmentName',

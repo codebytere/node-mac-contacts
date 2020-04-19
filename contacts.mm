@@ -171,36 +171,29 @@ Napi::Object CreateContact(Napi::Env env, CNContact *cncontact) {
     contact.Set("contactThumbnailImage", image_buffer);
   }
 
-  if ([cncontact isKeyAvailable:CNContactJobTitleKey]) {
+  if ([cncontact isKeyAvailable:CNContactJobTitleKey])
     contact.Set("jobTitle", std::string([[cncontact jobTitle] UTF8String]));
-  }
 
-  if ([cncontact isKeyAvailable:CNContactDepartmentNameKey]) {
+  if ([cncontact isKeyAvailable:CNContactDepartmentNameKey])
     contact.Set("departmentName",
                 std::string([[cncontact departmentName] UTF8String]));
-  }
 
-  if ([cncontact isKeyAvailable:CNContactOrganizationNameKey]) {
+  if ([cncontact isKeyAvailable:CNContactOrganizationNameKey])
     contact.Set("organizationName",
                 std::string([[cncontact organizationName] UTF8String]));
-  }
 
-  if ([cncontact isKeyAvailable:CNContactNoteKey]) {
+  if ([cncontact isKeyAvailable:CNContactNoteKey])
     contact.Set("note", std::string([[cncontact note] UTF8String]));
-  }
 
-  if ([cncontact isKeyAvailable:CNContactMiddleNameKey]) {
+  if ([cncontact isKeyAvailable:CNContactMiddleNameKey])
     contact.Set("middleName", std::string([[cncontact middleName] UTF8String]));
-  }
 
-  if ([cncontact isKeyAvailable:CNContactInstantMessageAddressesKey]) {
+  if ([cncontact isKeyAvailable:CNContactInstantMessageAddressesKey])
     contact.Set("instantMessageAddresses",
                 GetInstantMessageAddresses(env, cncontact));
-  }
 
-  if ([cncontact isKeyAvailable:CNContactSocialProfilesKey]) {
+  if ([cncontact isKeyAvailable:CNContactSocialProfilesKey])
     contact.Set("socialProfiles", GetSocialProfiles(env, cncontact));
-  }
 
   return contact;
 }
@@ -509,8 +502,16 @@ Napi::Boolean UpdateContact(const Napi::CallbackInfo &info) {
   return Napi::Boolean::New(env, success);
 }
 
+// Sets up event listening for changes to the CNContactStore.
 Napi::Boolean SetupListener(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
+
+  if (observer) {
+    Napi::Error::New(env, "An observer is already observing")
+        .ThrowAsJavaScriptException();
+    return Napi::Boolean::New(env, false);
+  }
+
   ts_fn = Napi::ThreadSafeFunction::New(env, info[0].As<Napi::Function>(),
                                         "emitCallback", 0, 1);
 
@@ -529,19 +530,36 @@ Napi::Boolean SetupListener(const Napi::CallbackInfo &info) {
   return Napi::Boolean::New(env, true);
 }
 
+// Removes event listening for changes to the CNContactStore.
 Napi::Boolean RemoveListener(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
 
   if (!observer) {
-    Napi::Error::New(env, "No observers are currently listening")
+    Napi::Error::New(env, "No observers are currently observing")
         .ThrowAsJavaScriptException();
     return Napi::Boolean::New(env, false);
   }
 
+  // Release thread-safe function.
   ts_fn.Release();
+
+  // Remove observer from the Notification Center.
   [[NSNotificationCenter defaultCenter] removeObserver:observer];
 
+  // Reset observer.
+  observer = nullptr;
+
   return Napi::Boolean::New(env, true);
+}
+
+// Indicates whether event listening for changes to the CNContactStore is in
+// place.
+Napi::Boolean IsListening(const Napi::CallbackInfo &info) {
+  Napi::Env env = info.Env();
+
+  bool is_listening = observer != nullptr;
+
+  return Napi::Boolean::New(env, is_listening);
 }
 
 // Initializes all functions exposed to JS.
@@ -550,6 +568,8 @@ Napi::Object Init(Napi::Env env, Napi::Object exports) {
               Napi::Function::New(env, SetupListener));
   exports.Set(Napi::String::New(env, "removeListener"),
               Napi::Function::New(env, RemoveListener));
+  exports.Set(Napi::String::New(env, "isListening"),
+              Napi::Function::New(env, IsListening));
   exports.Set(Napi::String::New(env, "getAuthStatus"),
               Napi::Function::New(env, GetAuthStatus));
   exports.Set(Napi::String::New(env, "getAllContacts"),

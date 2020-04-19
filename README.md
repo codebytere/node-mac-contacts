@@ -234,7 +234,7 @@ console.log(`Contact was ${updated ? 'updated' : 'not updated'}.`)
 
 This module exposes an `EventEmitter`, which can be used to listen to potential changes to the `CNContactStore`. When a contact is changed either with methods contained in this module, or manually by a user, the `contact-changed` event will be emitted.
 
-Owing to the underlying architecture of this module, the listener must be manually managed; before use you must initialize it with `listener.setup()` and when you are finished listening for events you must remove it with `listener.remove()`
+Owing to the underlying architecture of this module, the listener must be manually managed; before use you must initialize it with `listener.setup()` and when you are finished listening for events you must remove it with `listener.remove()`. To check if a listener is currently active, use `listener.isListening()`.
 
 Example Usage:
 

@@ -203,10 +203,23 @@ describe('node-mac-contacts', () => {
   })
 
   describe('listener', () => {
+    afterEach(() => {
+      if (listener.isListening()) {
+        listener.remove()
+      }
+    })
+
     it('throws when trying to remove a nonexistent listener', () => {
       expect(() => {
         listener.remove()
-      }).to.throw(/No observers are currently listening/)
+      }).to.throw(/No observers are currently observing/)
+    })
+
+    it('throws when trying to setup an already-existent listener', () => {
+      expect(() => {
+        listener.setup()
+        listener.setup()
+      }).to.throw(/An observer already observing/)
     })
 
     it('emits an event when the contact is changed', (done) => {
@@ -222,7 +235,6 @@ describe('node-mac-contacts', () => {
       })
 
       listener.once('contact-changed', () => {
-        listener.remove()
         done()
       })
     })
