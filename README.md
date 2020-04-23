@@ -98,7 +98,8 @@ console.log(allContacts[0])
 
 ### `contacts.getContactsByName(name[, extraProperties])`
 
-* `extraProperties` string[] (optional) - an array of extra contact properties to fetch that can be any of: `jobTitle`, `departmentName`, `organizationName`, `middleName`, `note`, `contactImage`, `contactThumbnailImage`, `instantMessageAddresses`, or `socialProfiles`.
+* `name` String (required) - The first, middle, last, or full name of a contact.
+* `extraProperties` String[] (optional) - an array of extra contact properties to fetch that can be any of: `jobTitle`, `departmentName`, `organizationName`, `middleName`, `note`, `contactImage`, `contactThumbnailImage`, `instantMessageAddresses`, or `socialProfiles`.
 
 Returns `Array<Object>` - Returns an array of contact objects where either the first or last name of the contact matches `name`.
 
@@ -179,7 +180,7 @@ console.log(`New contact was ${success ? 'saved' : 'not saved'}.`)
 
 ### `contacts.deleteContact(name)`
 
-* `name` String (required) - The first, last, or full name of a contact.
+* `name` String (required) - The first, middle, last, or full name of a contact.
 
 Returns `Boolean` - whether the contact was deleted successfully.
 
