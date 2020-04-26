@@ -56,6 +56,7 @@ Returns `Array<Object>` - Returns an array of contact objects.
 
 The returned objects will take the following format:
 
+* `identifier` String - The contact's unique identifier.
 * `firstName` String - The contact's first name, or an empty string ('') if one is not set.
 * `lastName` String - The contact's last name, or an empty string ('') if one is not set.
 * `nickname` String - The contact's nickname, or an empty string ('') if one is not set.
@@ -107,6 +108,7 @@ If a contact's full name is 'Shelley Vohr', I could pass 'Shelley', 'Vohr', or '
 
 The returned object will take the following format:
 
+* `identifier` String - The contact's unique identifier.
 * `firstName` String - The contact's first name, or an empty string ('') if one is not set.
 * `lastName` String - The contact's last name, or an empty string ('') if one is not set.
 * `nickname` String - The contact's nickname, or an empty string ('') if one is not set.

@@ -143,6 +143,8 @@ Napi::Object CreateContact(Napi::Env env, CNContact *cncontact) {
 
   // Default contact properties.
 
+  contact.Set("identifier", std::string([[cncontact identifier] UTF8String]));
+
   contact.Set("firstName", std::string([[cncontact givenName] UTF8String]));
   contact.Set("lastName", std::string([[cncontact familyName] UTF8String]));
   contact.Set("nickname", std::string([[cncontact nickname] UTF8String]));
