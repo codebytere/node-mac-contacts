@@ -324,6 +324,22 @@ NSArray *FindContacts(const std::string &name_string, Napi::Array extra_keys) {
                                               error:nil];
 }
 
+// Returns all contacts in the CNContactStore matching an identifier
+NSArray *FindContactsWithIdentifier(const std::string &identifier_string, Napi::Array extra_keys) {
+  CNContactStore *addressBook = [[CNContactStore alloc] init];
+
+  NSString *identifier = [NSString stringWithUTF8String:identifier_string.c_str()];
+
+  NSArray *identifiers = @[identifier];
+
+  NSPredicate *predicate = [CNContact predicateForContactsWithIdentifiers:identifiers];
+
+  return
+      [addressBook unifiedContactsMatchingPredicate:predicate
+                                        keysToFetch:GetContactKeys(extra_keys)
+                                              error:nil];
+}
+
 // Creates a new CNContact in order to update, delete, or add it to the
 // CNContactStore.
 CNMutableContact *CreateCNMutableContact(Napi::Object contact_data) {
@@ -472,8 +488,20 @@ Napi::Boolean DeleteContact(const Napi::CallbackInfo &info) {
   if (AuthStatus() != CNAuthorizationStatusAuthorized)
     return Napi::Boolean::New(env, false);
 
-  const std::string name_string = info[0].As<Napi::String>().Utf8Value();
-  NSArray *cncontacts = FindContacts(name_string, Napi::Array::New(env));
+  Napi::Object contact_data = info[0].As<Napi::Object>();
+
+  NSArray *cncontacts;
+  if (contact_data.Has("identifier")) {
+    const std::string identifier =
+        contact_data.Get("identifier").As<Napi::String>().Utf8Value();
+    cncontacts = FindContactsWithIdentifier(identifier, Napi::Array::New(env));
+  } else if (contact_data.Has("name")) {
+    const std::string name_string =
+        contact_data.Get("name").As<Napi::String>().Utf8Value();
+    cncontacts = FindContacts(name_string, Napi::Array::New(env));
+  } else {
+    return Napi::Boolean::New(env, false);
+  }
 
   CNContact *contact = (CNContact *)[cncontacts objectAtIndex:0];
   CNSaveRequest *request = [[CNSaveRequest alloc] init];

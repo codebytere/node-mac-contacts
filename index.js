@@ -150,12 +150,23 @@ function updateContact(contact) {
   return contacts.updateContact.call(this, contact)
 }
 
-function deleteContact(name) {
-  if (typeof name !== 'string') {
+function deleteContact(contact) {
+  if (!contact || Object.keys(contact).length === 0) {
+    throw new TypeError('contact must be a non-empty object')
+  }
+
+  const hasIdentifier = contact.hasOwnProperty('identifier')
+  const hasName = contact.hasOwnProperty('name')
+
+  if (hasIdentifier && typeof contact.identifier !== 'string') {
+    throw new TypeError('identifier must be a string')
+  }
+
+  if (hasName && typeof contact.name !== 'string') {
     throw new TypeError('name must be a string')
   }
 
-  return contacts.deleteContact.call(this, name)
+  return contacts.deleteContact.call(this, contact)
 }
 
 module.exports = {

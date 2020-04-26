@@ -180,13 +180,14 @@ const success = contacts.addNewContact({
 console.log(`New contact was ${success ? 'saved' : 'not saved'}.`)
 ```
 
-### `contacts.deleteContact(name)`
+### `contacts.deleteContact({ identifier, name })`
 
-* `name` String (required) - The first, middle, last, or full name of a contact.
+* `identifier` String (optional) - The contact's unique identifier.
+* `name` String (optional) - The first, middle, last, or full name of a contact.
 
 Returns `Boolean` - whether the contact was deleted successfully.
 
-Deletes a contact to the user's contacts database.
+Deletes a contact from the user's contacts database.
 
 If a contact's full name is 'Shelley Vohr', I could pass 'Shelley', 'Vohr', or 'Shelley Vohr' as `name`.
 However, you should take care to specify `name` to such a degree that you can be confident the first contact to be returned from a predicate search is the contact you intend to delete.
