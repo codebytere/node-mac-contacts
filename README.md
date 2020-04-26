@@ -205,7 +205,8 @@ console.log(`Contact ${name} was ${deleted ? 'deleted' : 'not deleted'}.`)
 ### `contacts.updateContact(contact)`
 
 * `contact` Object
-  * `firstName` String (required) - The first name of the contact.
+  * `identifier` String (optional) - The contact's unique identifier.
+  * `firstName` String (optional) - The first name of the contact.
   * `lastName` String (optional) - The last name of the contact.
   * `nickname` String (optional) - The nickname for the contact.
   * `birthday` String (optional) - The birthday for the contact in `YYYY-MM-DD` format.
@@ -214,9 +215,9 @@ console.log(`Contact ${name} was ${deleted ? 'deleted' : 'not deleted'}.`)
 
 Returns `Boolean` - whether the contact was updated successfully.
 
-Updates a contact to the user's contacts database.
+Updates a contact in the user's contacts database.
 
-You should take care to specify parameters to the `contact` object to such a degree that you can be confident the first contact to be returned from a predicate search is the contact you intend to update.
+If not specifiying `identifier`, you should take care to specify parameters to the `contact` object to such a degree that you can be confident the first contact to be returned from a predicate search is the contact you intend to update.
 
 This method will return `false` if access to Contacts has not been granted.
 
