@@ -150,11 +150,16 @@ describe('node-mac-contacts', () => {
     })
   })
 
-  describe('deleteContact(name)', () => {
+  describe('deleteContact({ name, identifier })', () => {
     it('should throw if name is not a string', () => {
       expect(() => {
-        deleteContact(12345)
+        deleteContact({ name: 12345 })
       }).to.throw(/name must be a string/)
+    })
+    it('should throw if identifier is not a string', () => {
+      expect(() => {
+        deleteContact({ identifier: 12345 })
+      }).to.throw(/identifier must be a string/)
     })
   })
 
