@@ -2,7 +2,7 @@
 #include <napi.h>
 
 Napi::ThreadSafeFunction ts_fn;
-id observer;
+id observer = nil;
 
 /***** HELPERS *****/
 
@@ -536,7 +536,7 @@ Napi::Boolean UpdateContact(const Napi::CallbackInfo &info) {
 Napi::Boolean SetupListener(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
 
-  if (observer) {
+  if (observer != nil) {
     Napi::Error::New(env, "An observer is already observing")
         .ThrowAsJavaScriptException();
     return Napi::Boolean::New(env, false);
@@ -564,7 +564,7 @@ Napi::Boolean SetupListener(const Napi::CallbackInfo &info) {
 Napi::Boolean RemoveListener(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
 
-  if (!observer) {
+  if (observer == nil) {
     Napi::Error::New(env, "No observers are currently observing")
         .ThrowAsJavaScriptException();
     return Napi::Boolean::New(env, false);
@@ -576,8 +576,8 @@ Napi::Boolean RemoveListener(const Napi::CallbackInfo &info) {
   // Remove observer from the Notification Center.
   [[NSNotificationCenter defaultCenter] removeObserver:observer];
 
-  // Reset observer.
-  observer = nullptr;
+  // Reset observer to nil.
+  observer = nil;
 
   return Napi::Boolean::New(env, true);
 }
