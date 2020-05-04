@@ -325,14 +325,17 @@ NSArray *FindContacts(const std::string &name_string, Napi::Array extra_keys) {
 }
 
 // Returns all contacts in the CNContactStore matching an identifier
-NSArray *FindContactsWithIdentifier(const std::string &identifier_string, Napi::Array extra_keys) {
+NSArray *FindContactsWithIdentifier(const std::string &identifier_string,
+                                    Napi::Array extra_keys) {
   CNContactStore *addressBook = [[CNContactStore alloc] init];
 
-  NSString *identifier = [NSString stringWithUTF8String:identifier_string.c_str()];
+  NSString *identifier =
+      [NSString stringWithUTF8String:identifier_string.c_str()];
 
-  NSArray *identifiers = @[identifier];
+  NSArray *identifiers = @[ identifier ];
 
-  NSPredicate *predicate = [CNContact predicateForContactsWithIdentifiers:identifiers];
+  NSPredicate *predicate =
+      [CNContact predicateForContactsWithIdentifiers:identifiers];
 
   return
       [addressBook unifiedContactsMatchingPredicate:predicate
@@ -412,8 +415,10 @@ Napi::Array GetAllContacts(const Napi::CallbackInfo &info) {
 
   Napi::Array contacts = Napi::Array::New(env);
   CNContactStore *addressBook = [[CNContactStore alloc] init];
-  NSMutableArray *cncontacts = [[NSMutableArray alloc] init];
   Napi::Array extra_keys = info[0].As<Napi::Array>();
+
+  // This is a set so that contacts in multiple containers aren't duplicated.
+  NSMutableSet *unordered_contacts = [[NSMutableSet alloc] init];
 
   if (AuthStatus() != CNAuthorizationStatusAuthorized)
     return contacts;
@@ -430,9 +435,10 @@ Napi::Array GetAllContacts(const Napi::CallbackInfo &info) {
                                           keysToFetch:GetContactKeys(extra_keys)
                                                 error:nil];
 
-    [cncontacts addObjectsFromArray:container_contacts];
+    [unordered_contacts addObjectsFromArray:container_contacts];
   }
 
+  NSArray *cncontacts = [unordered_contacts allObjects];
   int num_contacts = [cncontacts count];
   for (int i = 0; i < num_contacts; i++) {
     CNContact *cncontact = [cncontacts objectAtIndex:i];
