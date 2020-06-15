@@ -213,7 +213,7 @@ NSArray *ParsePhoneNumbers(Napi::Array phone_number_data) {
     CNPhoneNumber *phone_number =
         [CNPhoneNumber phoneNumberWithStringValue:number];
     CNLabeledValue *labeled_value =
-        [CNLabeledValue labeledValueWithLabel:@"Home" value:phone_number];
+        [CNLabeledValue labeledValueWithLabel:@"mobile" value:phone_number];
     [phone_numbers addObject:labeled_value];
   }
 
@@ -231,7 +231,7 @@ NSArray *ParseEmailAddresses(Napi::Array email_address_data) {
         email_address_data.Get(i).As<Napi::String>().Utf8Value();
     NSString *email = [NSString stringWithUTF8String:email_str.c_str()];
     CNLabeledValue *labeled_value =
-        [CNLabeledValue labeledValueWithLabel:@"Home" value:email];
+        [CNLabeledValue labeledValueWithLabel:@"home" value:email];
     [email_addresses addObject:labeled_value];
   }
 
