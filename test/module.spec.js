@@ -7,11 +7,21 @@ const {
   deleteContact,
   updateContact,
   listener,
+  requestAccess,
 } = require('../index')
 
 const isCI = require('is-ci')
 const ifit = (condition) => (condition ? it : it.skip)
 const ifdescribe = (condition) => (condition ? describe : describe.skip)
+
+if (!isCI) {
+  requestAccess().then((status) => {
+    if (status !== 'Authorized') {
+      console.error('Access to Contacts not authorized - cannot proceed.')
+      process.exit(1)
+    }
+  })
+}
 
 describe('node-mac-contacts', () => {
   describe('getAuthStatus()', () => {

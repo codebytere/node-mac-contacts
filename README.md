@@ -11,7 +11,7 @@ $ npm i node-mac-contacts
 
 This Native Node Module allows you to create, read, update, and delete contact from users' contacts databases on macOS.
 
-All methods invoking the [CNContactStore](https://developer.apple.com/documentation/contacts/cncontactstore) will require authorization, which will be requested the first time the functions themselves are invoked. You can verify authorization status with `contacts.getAuthStatus()` as outlined below.
+All methods invoking the [CNContactStore](https://developer.apple.com/documentation/contacts/cncontactstore) will require authorization, which you can request from users with the `requestAccess` method. You can verify authorization status with `contacts.getAuthStatus()` as outlined below.
 
 In your app, you should put the reason you're requesting to manipulate user's contacts database in your `Info.plist` like so:
 
@@ -21,6 +21,14 @@ In your app, you should put the reason you're requesting to manipulate user's co
 ```
 
 ## API
+
+### `contacts.requestAccess()`
+
+Returns `Promise<String>` - Can be one of 'Denied', 'Authorized'.
+
+Requests access to the [CNContactStore](https://developer.apple.com/documentation/contacts/cncontactstore) via a dialog presented to the user.
+
+If the user has previously denied the request, this method will open the Contacts pane within the Privacy section of System Preferences.
 
 ### `contacts.getAuthStatus()`
 

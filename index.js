@@ -171,6 +171,7 @@ function deleteContact(contact) {
 
 module.exports = {
   listener,
+  requestAccess: contacts.requestAccess,
   getAuthStatus: contacts.getAuthStatus,
   getAllContacts,
   getContactsByName,

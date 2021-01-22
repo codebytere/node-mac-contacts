@@ -1,3 +1,4 @@
+#import <AppKit/AppKit.h>
 #import <Contacts/Contacts.h>
 #include <napi.h>
 
@@ -5,6 +6,11 @@ Napi::ThreadSafeFunction ts_fn;
 id observer = nil;
 
 /***** HELPERS *****/
+
+// Dummy value to pass into function parameter for ThreadSafeFunction.
+Napi::Value NoOp(const Napi::CallbackInfo &info) {
+  return info.Env().Undefined();
+}
 
 // Parses and returns an array of email addresses as strings.
 Napi::Array GetEmailAddresses(Napi::Env env, CNContact *cncontact) {
@@ -263,6 +269,22 @@ CNAuthorizationStatus AuthStatus() {
   return [CNContactStore authorizationStatusForEntityType:entityType];
 }
 
+// Returns the authorization status as a string.
+std::string AuthStatusString() {
+  std::string auth_status = "Not Determined";
+
+  CNAuthorizationStatus status_for_entity = AuthStatus();
+
+  if (status_for_entity == CNAuthorizationStatusAuthorized)
+    auth_status = "Authorized";
+  else if (status_for_entity == CNAuthorizationStatusDenied)
+    auth_status = "Denied";
+  else if (status_for_entity == CNAuthorizationStatusRestricted)
+    auth_status = "Restricted";
+
+  return auth_status;
+}
+
 // Returns the set of Contacts properties to retrieve from the CNContactStore.
 NSArray *GetContactKeys(Napi::Array requested_keys) {
   NSMutableArray *keys = [NSMutableArray arrayWithArray:@[
@@ -392,21 +414,54 @@ CNMutableContact *CreateCNMutableContact(Napi::Object contact_data) {
 
 /***** EXPORTED FUNCTIONS *****/
 
+// Request Contacts access.
+Napi::Promise RequestAccess(const Napi::CallbackInfo &info) {
+  Napi::Env env = info.Env();
+  Napi::Promise::Deferred deferred = Napi::Promise::Deferred::New(env);
+  Napi::ThreadSafeFunction ts_fn = Napi::ThreadSafeFunction::New(
+      env, Napi::Function::New(env, NoOp), "contactsCallback", 0, 1);
+
+  if (@available(macOS 10.11, *)) {
+    std::string status = AuthStatusString();
+
+    if (status == "Not Determined") {
+      __block Napi::ThreadSafeFunction tsfn = ts_fn;
+      CNContactStore *store = [CNContactStore new];
+      [store requestAccessForEntityType:CNEntityTypeContacts
+                      completionHandler:^(BOOL granted, NSError *error) {
+                        auto callback = [=](Napi::Env env, Napi::Function js_cb,
+                                            const char *granted) {
+                          deferred.Resolve(Napi::String::New(env, granted));
+                        };
+                        tsfn.BlockingCall(granted ? "Authorized" : "Denied",
+                                          callback);
+                        tsfn.Release();
+                      }];
+    } else if (status == "Denied") {
+      NSWorkspace *workspace = [[NSWorkspace alloc] init];
+      NSString *pref_string = @"x-apple.systempreferences:com.apple.preference."
+                              @"security?Contacts";
+
+      [workspace openURL:[NSURL URLWithString:pref_string]];
+
+      ts_fn.Release();
+      deferred.Resolve(Napi::String::New(env, "Denied"));
+    } else {
+      ts_fn.Release();
+      deferred.Resolve(Napi::String::New(env, "Authorized"));
+    }
+  } else {
+    ts_fn.Release();
+    deferred.Resolve(Napi::String::New(env, "Authorized"));
+  }
+
+  return deferred.Promise();
+}
+
 // Returns the user's Contacts access consent status as a string.
 Napi::Value GetAuthStatus(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
-  std::string auth_status = "Not Determined";
-
-  CNAuthorizationStatus status_for_entity = AuthStatus();
-
-  if (status_for_entity == CNAuthorizationStatusAuthorized)
-    auth_status = "Authorized";
-  else if (status_for_entity == CNAuthorizationStatusDenied)
-    auth_status = "Denied";
-  else if (status_for_entity == CNAuthorizationStatusRestricted)
-    auth_status = "Restricted";
-
-  return Napi::Value::From(env, auth_status);
+  return Napi::Value::From(env, AuthStatusString());
 }
 
 // Returns an array of all a user's Contacts as objects.
@@ -606,6 +661,8 @@ Napi::Object Init(Napi::Env env, Napi::Object exports) {
               Napi::Function::New(env, RemoveListener));
   exports.Set(Napi::String::New(env, "isListening"),
               Napi::Function::New(env, IsListening));
+  exports.Set(Napi::String::New(env, "requestAccess"),
+              Napi::Function::New(env, RequestAccess));
   exports.Set(Napi::String::New(env, "getAuthStatus"),
               Napi::Function::New(env, GetAuthStatus));
   exports.Set(Napi::String::New(env, "getAllContacts"),
