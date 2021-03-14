@@ -116,17 +116,12 @@ Napi::Array GetInstantMessageAddresses(Napi::Env env, CNContact *cncontact) {
 
 // Parses and returns birthdays as strings in YYYY-MM-DD format.
 std::string GetBirthday(CNContact *cncontact) {
-  std::string result;
-
   NSDate *birth_date = [[cncontact birthday] date];
   NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
   [formatter setDateFormat:@"yyyy-MM-dd"];
 
   NSString *birthday = [formatter stringFromDate:birth_date];
-  if (birthday)
-    result = std::string([birthday UTF8String]);
-
-  return result;
+  return birthday ? std::string([birthday UTF8String]) : "";
 }
 
 Napi::Buffer<uint8_t> GetContactImage(Napi::Env env, CNContact *cncontact,
@@ -271,18 +266,16 @@ CNAuthorizationStatus AuthStatus() {
 
 // Returns the authorization status as a string.
 std::string AuthStatusString() {
-  std::string auth_status = "Not Determined";
-
-  CNAuthorizationStatus status_for_entity = AuthStatus();
-
-  if (status_for_entity == CNAuthorizationStatusAuthorized)
-    auth_status = "Authorized";
-  else if (status_for_entity == CNAuthorizationStatusDenied)
-    auth_status = "Denied";
-  else if (status_for_entity == CNAuthorizationStatusRestricted)
-    auth_status = "Restricted";
-
-  return auth_status;
+  switch (AuthStatus()) {
+  case CNAuthorizationStatusAuthorized:
+    return "Authorized";
+  case CNAuthorizationStatusDenied:
+    return "Denied";
+  case CNAuthorizationStatusRestricted:
+    return "Restricted";
+  default:
+    return "Not Determined";
+  }
 }
 
 // Returns the set of Contacts properties to retrieve from the CNContactStore.
