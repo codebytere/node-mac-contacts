@@ -163,6 +163,10 @@ console.log(contacts)
   * `firstName` String (required) - The first name of the contact.
   * `lastName` String (optional) - The last name of the contact.
   * `nickname` String (optional) - The nickname for the contact.
+  * `jobTitle` String (optional) - The contact's job title.
+  * `departmentName` String (optional) - The name of the department associated with the contact.
+  * `organizationName`  String (optional) - The name of the organization associated with the contact.
+  * `middleName` String (optional) - The contact's middle name.
   * `birthday` String (optional) - The birthday for the contact in `YYYY-MM-DD` format.
   * `phoneNumbers` Array\<String\> (optional) - The phone numbers for the contact, as strings in [E.164 format](https://en.wikipedia.org/wiki/E.164): `+14155552671` or `+442071838750`.
   * `emailAddresses` Array\<String\> (optional) - The email addresses for the contact, as strings.
@@ -217,6 +221,10 @@ console.log(`Contact ${name} was ${deleted ? 'deleted' : 'not deleted'}.`)
   * `firstName` String (required) - The first name of the contact.
   * `lastName` String (optional) - The last name of the contact.
   * `nickname` String (optional) - The nickname for the contact.
+  * `jobTitle` String (optional) - The contact's job title.
+  * `departmentName` String (optional) - The name of the department associated with the contact.
+  * `organizationName`  String (optional) - The name of the organization associated with the contact.
+  * `middleName` String (optional) - The contact's middle name.
   * `birthday` String (optional) - The birthday for the contact in `YYYY-MM-DD` format.
   * `phoneNumbers` Array\<String\> (optional) - The phone numbers for the contact, as strings in [E.164 format](https://en.wikipedia.org/wiki/E.164): `+14155552671` or `+442071838750`.
   * `emailAddresses` Array\<String\> (optional) - The email addresses for the contact, as strings.

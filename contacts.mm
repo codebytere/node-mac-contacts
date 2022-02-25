@@ -369,6 +369,12 @@ CNMutableContact *CreateCNMutableContact(Napi::Object contact_data) {
     [contact setGivenName:[NSString stringWithUTF8String:first_name.c_str()]];
   }
 
+  if (contact_data.Has("middleName")) {
+    std::string middle_name =
+        contact_data.Get("middleName").As<Napi::String>().Utf8Value();
+    [contact setMiddleName:[NSString stringWithUTF8String:middle_name.c_str()]];
+  }
+
   if (contact_data.Has("lastName")) {
     std::string last_name =
         contact_data.Get("lastName").As<Napi::String>().Utf8Value();
@@ -379,6 +385,24 @@ CNMutableContact *CreateCNMutableContact(Napi::Object contact_data) {
     std::string nick_name =
         contact_data.Get("nickname").As<Napi::String>().Utf8Value();
     [contact setNickname:[NSString stringWithUTF8String:nick_name.c_str()]];
+  }
+
+  if (contact_data.Has("jobTitle")) {
+    std::string job_title =
+        contact_data.Get("jobTitle").As<Napi::String>().Utf8Value();
+    [contact setJobTitle:[NSString stringWithUTF8String:job_title.c_str()]];
+  }
+
+  if (contact_data.Has("departmentName")) {
+    std::string department_name =
+        contact_data.Get("departmentName").As<Napi::String>().Utf8Value();
+    [contact setDepartmentName:[NSString stringWithUTF8String:department_name.c_str()]];
+  }
+
+  if (contact_data.Has("organizationName")) {
+    std::string organization_name =
+        contact_data.Get("organizationName").As<Napi::String>().Utf8Value();
+    [contact setOrganizationName:[NSString stringWithUTF8String:organization_name.c_str()]];
   }
 
   if (contact_data.Has("birthday")) {

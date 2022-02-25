@@ -67,7 +67,15 @@ function validateContactArg(contact) {
     throw new TypeError('contact must be a non-empty object')
   }
 
-  for (const prop of ['firstName', 'lastName', 'nickname']) {
+  for (const prop of [
+    'firstName',
+    'middleName',
+    'lastName',
+    'nickname',
+    'jobTitle',
+    'departmentName',
+    'organizationName',
+  ]) {
     const hasProp = contact.hasOwnProperty(prop)
     if (hasProp && typeof contact[prop] !== 'string') {
       throw new TypeError(`${prop} must be a string`)
