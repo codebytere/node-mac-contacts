@@ -4,6 +4,7 @@
   "description": "A native module that allows you to access and manipulate macOS contacts",
   "main": "index.js",
   "scripts": {
+    "install": "prebuild-install || npm run build",
     "build": "node-gyp build",
     "build:dev": "node-gyp build --debug",
     "clean": "node-gyp clean",
