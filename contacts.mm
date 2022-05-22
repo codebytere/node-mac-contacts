@@ -214,7 +214,8 @@ NSArray *ParsePhoneNumbers(Napi::Array phone_number_data) {
     CNPhoneNumber *phone_number =
         [CNPhoneNumber phoneNumberWithStringValue:number];
     CNLabeledValue *labeled_value =
-        [CNLabeledValue labeledValueWithLabel:CNLabelPhoneNumberMobile value:phone_number];
+        [CNLabeledValue labeledValueWithLabel:CNLabelPhoneNumberMobile
+                                        value:phone_number];
     [phone_numbers addObject:labeled_value];
   }
 
@@ -396,13 +397,17 @@ CNMutableContact *CreateCNMutableContact(Napi::Object contact_data) {
   if (contact_data.Has("departmentName")) {
     std::string department_name =
         contact_data.Get("departmentName").As<Napi::String>().Utf8Value();
-    [contact setDepartmentName:[NSString stringWithUTF8String:department_name.c_str()]];
+    [contact
+        setDepartmentName:[NSString
+                              stringWithUTF8String:department_name.c_str()]];
   }
 
   if (contact_data.Has("organizationName")) {
     std::string organization_name =
         contact_data.Get("organizationName").As<Napi::String>().Utf8Value();
-    [contact setOrganizationName:[NSString stringWithUTF8String:organization_name.c_str()]];
+    [contact
+        setOrganizationName:[NSString stringWithUTF8String:organization_name
+                                                               .c_str()]];
   }
 
   if (contact_data.Has("birthday")) {

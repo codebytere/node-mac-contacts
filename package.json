@@ -11,7 +11,8 @@
     "format": "clang-format -i contacts.mm && prettier --write '**/*.js'",
     "rebuild": "node-gyp rebuild",
     "rebuild:dev": "node-gyp rebuild --debug",
-    "test": "./node_modules/.bin/mocha --reporter spec"
+    "test": "./node_modules/.bin/mocha --reporter spec",
+    "prepare": "husky install"
   },
   "repository": {
     "type": "git",
@@ -31,23 +32,18 @@
   },
   "homepage": "https://github.com/codebytere/node-mac-contacts#readme",
   "devDependencies": {
-    "chai": "^4.2.0",
-    "clang-format": "^1.4.0",
-    "husky": "^4.3.0",
+    "chai": "^4.3.6",
+    "clang-format": "^1.8.0",
+    "husky": "^8.0.1",
     "is-ci": "^2.0.0",
-    "lint-staged": "^10.5.3",
-    "mocha": "^9.2.1",
-    "node-gyp": "^7.1.2",
-    "prettier": "^2.2.1"
+    "lint-staged": "^12.4.1",
+    "mocha": "^10.0.0",
+    "node-gyp": "^9.0.0",
+    "prettier": "^2.6.2"
   },
   "dependencies": {
     "bindings": "^1.5.0",
     "node-addon-api": "^3.0.2"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
   },
   "lint-staged": {
     "*.js": [
