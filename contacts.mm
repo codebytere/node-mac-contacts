@@ -490,18 +490,24 @@ Napi::Value GetAuthStatus(const Napi::CallbackInfo &info) {
 Napi::Array GetAllContacts(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
 
-  Napi::Array contacts = Napi::Array::New(env);
+  if (AuthStatus() != CNAuthorizationStatusAuthorized)
+    return Napi::Array::New(env);
+
   CNContactStore *addressBook = [[CNContactStore alloc] init];
   Napi::Array extra_keys = info[0].As<Napi::Array>();
 
+  NSError *error = nil;
+  NSArray *containers = [addressBook containersMatchingPredicate:nil
+                                                           error:&error];
+  if (error != nil) {
+    std::string err_msg = std::string([error.localizedDescription UTF8String]);
+    Napi::Error::New(env, "Failed to fetch address book container: " + err_msg)
+        .ThrowAsJavaScriptException();
+    return Napi::Array::New(env);
+  }
+
   // This is a set so that contacts in multiple containers aren't duplicated.
   NSMutableSet *unordered_contacts = [[NSMutableSet alloc] init];
-
-  if (AuthStatus() != CNAuthorizationStatusAuthorized)
-    return contacts;
-
-  NSArray *containers = [addressBook containersMatchingPredicate:nil error:nil];
-
   int num_containers = [containers count];
   for (int idx = 0; idx < num_containers; idx++) {
     CNContainer *container = [containers objectAtIndex:idx];
@@ -510,11 +516,19 @@ Napi::Array GetAllContacts(const Napi::CallbackInfo &info) {
     NSArray *container_contacts =
         [addressBook unifiedContactsMatchingPredicate:predicate
                                           keysToFetch:GetContactKeys(extra_keys)
-                                                error:nil];
+                                                error:&error];
+    if (error != nil) {
+      std::string err_msg =
+          std::string([error.localizedDescription UTF8String]);
+      Napi::Error::New(env, "Failed to fetch contacts: " + err_msg)
+          .ThrowAsJavaScriptException();
+      return Napi::Array::New(env);
+    }
 
     [unordered_contacts addObjectsFromArray:container_contacts];
   }
 
+  Napi::Array contacts = Napi::Array::New(env);
   NSArray *cncontacts = [unordered_contacts allObjects];
   int num_contacts = [cncontacts count];
   for (int i = 0; i < num_contacts; i++) {
