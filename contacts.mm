@@ -5,6 +5,8 @@
 Napi::ThreadSafeFunction ts_fn;
 id observer = nil;
 
+Napi::Reference<Napi::Array> contacts_ref;
+
 /***** HELPERS *****/
 
 // Dummy value to pass into function parameter for ThreadSafeFunction.
@@ -493,6 +495,9 @@ Napi::Array GetAllContacts(const Napi::CallbackInfo &info) {
   if (AuthStatus() != CNAuthorizationStatusAuthorized)
     return Napi::Array::New(env);
 
+  if (!contacts_ref.IsEmpty())
+    return contacts_ref.Value();
+
   CNContactStore *addressBook = [[CNContactStore alloc] init];
   Napi::Array extra_keys = info[0].As<Napi::Array>();
 
@@ -535,6 +540,8 @@ Napi::Array GetAllContacts(const Napi::CallbackInfo &info) {
     CNContact *cncontact = [cncontacts objectAtIndex:i];
     contacts[i] = CreateContact(env, cncontact);
   }
+
+  contacts_ref = Napi::Persistent(contacts);
 
   return contacts;
 }
@@ -647,6 +654,7 @@ Napi::Boolean SetupListener(const Napi::CallbackInfo &info) {
                   object:nil
                    queue:[NSOperationQueue mainQueue]
               usingBlock:^(NSNotification *note) {
+                contacts_ref.Reset();
                 auto callback = [](Napi::Env env, Napi::Function js_cb,
                                    const char *value) {
                   js_cb.Call({Napi::String::New(env, value)});
