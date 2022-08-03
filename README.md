@@ -20,6 +20,8 @@ In your app, you should put the reason you're requesting to manipulate user's co
 <string>Your reason for wanting to access the Contact store</string>
 ```
 
+If you're using macOS 12.3 or newer, you'll need to ensure you have Python installed on your system, as macOS does not bundle it anymore.
+
 ## API
 
 ### `contacts.requestAccess()`
