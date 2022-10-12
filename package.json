@@ -9,7 +9,7 @@
     "clean": "node-gyp clean",
     "lint": "prettier --check '**/*.js'",
     "format": "clang-format -i contacts.mm && prettier --write '**/*.js'",
-    "rebuild": "node-gyp 2ebuild",
+    "rebuild": "node-gyp rebuild",
     "rebuild:dev": "node-gyp rebuild --debug",
     "test": "./node_modules/.bin/mocha --reporter spec",
     "prepare": "husky install"

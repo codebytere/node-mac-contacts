@@ -34,6 +34,8 @@ Requests access to the [CNContactStore](https://developer.apple.com/documentatio
 
 If the user has previously denied the request, this method will open the Contacts pane within the Privacy section of System Preferences.
 
+*Note that access permission request prompts will not appear when `requestAccess()` is invoked in embedded terminals such as those found in Visual Studio Code. Run your code from an external terminal such as Terminal.app instead.*
+
 ### `contacts.getAuthStatus()`
 
 Returns `String` - Can be one of 'Not Determined', 'Denied', 'Authorized', or 'Restricted'.
@@ -62,7 +64,7 @@ console.log(`Authorization access to contacts is: ${authStatus}`)
 
 ### `contacts.getAllContacts([extraProperties])`
 
-* `extraProperties` string[] (optional) - an array of extra contact properties to fetch that can be any of: `jobTitle`, `departmentName`, `organizationName`, `middleName`, `note`, `contactImage`, `contactThumbnailImage`, `instantMessageAddresses`, or `socialProfiles`.
+* `extraProperties` string[] (optional) - an array of extra contact properties to fetch that can be any of: `jobTitle`, `departmentName`, `organizationName`, `middleName`, `note`, `contactImage`, `contactThumbnailImage`, `instantMessageAddresses`, `socialProfiles`, or `urlAddresses`.
 
 Returns `Array<Object>` - Returns an array of contact objects.
 
@@ -78,13 +80,14 @@ The returned objects will take the following format:
 * `postalAddresses` String[] - An array of postal as strings.
 * `jobTitle` String (optional) - The contact's job title.
 * `departmentName` String (optional) - The name of the department associated with the contact.
-* `organizationName`  String (optional) - The name of the organization associated with the contact.
+* `organizationName` String (optional) - The name of the organization associated with the contact.
 * `middleName` String (optional) - The contact's middle name.
 * `note` String (optional) - The note associated with the contact.
 * `contactImage` Buffer (optional) - a Buffer representation of the contact's profile picture.
 * `contactThumbnailImage` Buffer (optional) - a Buffer representation of The thumbnail version of the contact’s profile picture.
 * `socialProfiles` Object[] (optional) - An array of labeled social profiles for a contact.
-* `instantMessageAddresses` Object[]  (optional) - An array of labeled IM addresses for the contact.
+* `instantMessageAddresses` Object[] (optional) - An array of labeled IM addresses for the contact.
+* `urlAddresses` String[] (optional) - An array of url addresses as strings.
 
 This method will return an empty array (`[]`) if access to Contacts has not been granted.
 
@@ -112,7 +115,7 @@ console.log(allContacts[0])
 ### `contacts.getContactsByName(name[, extraProperties])`
 
 * `name` String (required) - The first, middle, last, or full name of a contact.
-* `extraProperties` String[] (optional) - an array of extra contact properties to fetch that can be any of: `jobTitle`, `departmentName`, `organizationName`, `middleName`, `note`, `contactImage`, `contactThumbnailImage`, `instantMessageAddresses`, or `socialProfiles`.
+* `extraProperties` String[] (optional) - an array of extra contact properties to fetch that can be any of: `jobTitle`, `departmentName`, `organizationName`, `middleName`, `note`, `contactImage`, `contactThumbnailImage`, `instantMessageAddresses`, `socialProfiles`, or `urlAddresses`.
 
 Returns `Array<Object>` - Returns an array of contact objects where either the first or last name of the contact matches `name`.
 
@@ -130,13 +133,14 @@ The returned object will take the following format:
 * `postalAddresses` String[] - An array of postal as strings.
 * `jobTitle` String (optional) - The contact's job title.
 * `departmentName` String (optional) - The name of the department associated with the contact.
-* `organizationName`  String (optional) - The name of the organization associated with the contact.
+* `organizationName` String (optional) - The name of the organization associated with the contact.
 * `middleName` String (optional) - The contact's middle name.
 * `note` String (optional) - The note associated with the contact.
 * `contactImage` Buffer (optional) - a Buffer representation of the contact's profile picture.
 * `contactThumbnailImage` Buffer (optional) - a Buffer representation of The thumbnail version of the contact’s profile picture.
 * `socialProfiles` Object[] (optional) - An array of labeled social profiles for a contact.
-* `instantMessageAddresses` Object[]  (optional) - An array of labeled IM addresses for the contact.
+* `instantMessageAddresses` Object[] (optional) - An array of labeled IM addresses for the contact.
+* `urlAddresses` String[] (optional) - An array of url addresses as strings.
 
 This method will return an empty array (`[]`) if access to Contacts has not been granted.
 
@@ -169,15 +173,16 @@ console.log(contacts)
   * `nickname` String (optional) - The nickname for the contact.
   * `jobTitle` String (optional) - The contact's job title.
   * `departmentName` String (optional) - The name of the department associated with the contact.
-  * `organizationName`  String (optional) - The name of the organization associated with the contact.
+  * `organizationName` String (optional) - The name of the organization associated with the contact.
   * `middleName` String (optional) - The contact's middle name.
   * `birthday` String (optional) - The birthday for the contact in `YYYY-MM-DD` format.
   * `phoneNumbers` Array\<String\> (optional) - The phone numbers for the contact, as strings in [E.164 format](https://en.wikipedia.org/wiki/E.164): `+14155552671` or `+442071838750`.
   * `emailAddresses` Array\<String\> (optional) - The email addresses for the contact, as strings.
+  * `urlAddresses` Array\<String\> (optional) - The url addresses for the contact, as strings.
 
 Returns `Boolean` - whether the contact information was created successfully.
 
-Creates and save a new contact to the user's contacts database. 
+Creates and save a new contact to the user's contacts database.
 
 This method will return `false` if access to Contacts has not been granted.
 
@@ -189,8 +194,8 @@ const success = contacts.addNewContact({
   lastName: 'Grapeseed',
   nickname: 'Billy',
   birthday: '1990-09-09',
-  phoneNumbers: [ '+1234567890' ],
-  emailAddresses: ['billy@grapeseed.com' ]
+  phoneNumbers: ['+1234567890'],
+  emailAddresses: ['billy@grapeseed.com'],
 })
 
 console.log(`New contact was ${success ? 'saved' : 'not saved'}.`)
@@ -227,11 +232,12 @@ console.log(`Contact ${name} was ${deleted ? 'deleted' : 'not deleted'}.`)
   * `nickname` String (optional) - The nickname for the contact.
   * `jobTitle` String (optional) - The contact's job title.
   * `departmentName` String (optional) - The name of the department associated with the contact.
-  * `organizationName`  String (optional) - The name of the organization associated with the contact.
+  * `organizationName` String (optional) - The name of the organization associated with the contact.
   * `middleName` String (optional) - The contact's middle name.
   * `birthday` String (optional) - The birthday for the contact in `YYYY-MM-DD` format.
   * `phoneNumbers` Array\<String\> (optional) - The phone numbers for the contact, as strings in [E.164 format](https://en.wikipedia.org/wiki/E.164): `+14155552671` or `+442071838750`.
   * `emailAddresses` Array\<String\> (optional) - The email addresses for the contact, as strings.
+  * `urlAddresses` Array\<String\> (optional) - The url addresses for the contact, as strings.
 
 Returns `Boolean` - whether the contact was updated successfully.
 
@@ -248,7 +254,7 @@ Example Usage:
 const updated = contacts.updateContact({
   firstName: 'William',
   lastName: 'Grapeseed',
-  nickname: 'Will'
+  nickname: 'Will',
 })
 
 console.log(`Contact was ${updated ? 'updated' : 'not updated'}.`)

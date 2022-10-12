@@ -24,6 +24,7 @@ const optionalProperties = [
   'contactThumbnailImage',
   'instantMessageAddresses',
   'socialProfiles',
+  'urlAddresses',
 ]
 
 function getAllContacts(extraProperties = []) {
@@ -81,7 +82,7 @@ function validateContactArg(contact) {
       throw new TypeError(`${prop} must be a string`)
     }
   }
-  for (const prop of ['phoneNumbers', 'emailAddresses']) {
+  for (const prop of ['phoneNumbers', 'emailAddresses', 'urlAddresses']) {
     const hasProp = contact.hasOwnProperty(prop)
     if (hasProp && !Array.isArray(contact[prop])) {
       throw new TypeError(`${prop} must be an array`)

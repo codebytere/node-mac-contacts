@@ -141,6 +141,21 @@ Napi::Buffer<uint8_t> GetContactImage(Napi::Env env, CNContact *cncontact,
   return Napi::Buffer<uint8_t>::Copy(env, &data[0], data.size());
 }
 
+// Parses and returns an array of URL addresses as strings.
+Napi::Array GetUrlAddresses(Napi::Env env, CNContact *cncontact) {
+  int num_url_addresses = [[cncontact urlAddresses] count];
+
+  Napi::Array url_addresses = Napi::Array::New(env, num_url_addresses);
+  NSArray<CNLabeledValue<NSString *> *> *urlAddresses =
+      [cncontact urlAddresses];
+  for (int i = 0; i < num_url_addresses; i++) {
+    CNLabeledValue<NSString *> *url_address = [urlAddresses objectAtIndex:i];
+    url_addresses[i] = std::string([[url_address value] UTF8String]);
+  }
+
+  return url_addresses;
+}
+
 // Creates an object containing all properties of a macOS contact.
 Napi::Object CreateContact(Napi::Env env, CNContact *cncontact) {
   Napi::Object contact = Napi::Object::New(env);
@@ -201,6 +216,11 @@ Napi::Object CreateContact(Napi::Env env, CNContact *cncontact) {
   if ([cncontact isKeyAvailable:CNContactSocialProfilesKey])
     contact.Set("socialProfiles", GetSocialProfiles(env, cncontact));
 
+  if ([cncontact isKeyAvailable:CNContactUrlAddressesKey]) {
+    Napi::Array url_addresses = GetUrlAddresses(env, cncontact);
+    contact.Set("urlAddresses", url_addresses);
+  }
+
   return contact;
 }
 
@@ -259,6 +279,24 @@ NSDateComponents *ParseBirthday(std::string birth_day) {
                                                  fromDate:bday_date];
 
   return birthday_components;
+}
+
+// Parses an array of url address strings and converts them to an NSArray of
+// NSStrings.
+NSArray *ParseUrlAddresses(Napi::Array url_address_data) {
+  NSMutableArray *url_addresses = [[NSMutableArray alloc] init];
+
+  int data_length = static_cast<int>(url_address_data.Length());
+  for (int i = 0; i < data_length; i++) {
+    std::string url_str =
+        url_address_data.Get(i).As<Napi::String>().Utf8Value();
+    NSString *url = [NSString stringWithUTF8String:url_str.c_str()];
+    CNLabeledValue *labeled_value =
+        [CNLabeledValue labeledValueWithLabel:CNLabelHome value:url];
+    [url_addresses addObject:labeled_value];
+  }
+
+  return url_addresses;
 }
 
 // Returns a status indicating whether or not the user has authorized Contacts
@@ -322,6 +360,8 @@ NSArray *GetContactKeys(Napi::Array requested_keys) {
           CNSocialProfileURLStringKey, CNSocialProfileUsernameKey,
           CNSocialProfileUserIdentifierKey
         ]];
+      } else if (key == "urlAddresses") {
+        [keys addObject:CNContactUrlAddressesKey];
       }
     }
   }
@@ -432,6 +472,13 @@ CNMutableContact *CreateCNMutableContact(Napi::Object contact_data) {
         contact_data.Get("emailAddresses").As<Napi::Array>();
     NSArray *email_addresses = ParseEmailAddresses(email_address_data);
     [contact setEmailAddresses:[NSArray arrayWithArray:email_addresses]];
+  }
+
+  if (contact_data.Has("urlAddresses")) {
+    Napi::Array url_address_data =
+        contact_data.Get("urlAddresses").As<Napi::Array>();
+    NSArray *url_addresses = ParseUrlAddresses(url_address_data);
+    [contact setUrlAddresses:[NSArray arrayWithArray:url_addresses]];
   }
 
   return contact;
