@@ -570,7 +570,7 @@ Napi::Array GetContactsByName(const Napi::CallbackInfo &info) {
 // Creates and adds a new CNContact to the CNContactStore.
 Napi::Boolean AddNewContact(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
-  CNContactStore *addressBook = [[CNContactStore alloc] init];
+  CNContactStore *address_book = [[CNContactStore alloc] init];
 
   if (AuthStatus() != CNAuthorizationStatusAuthorized)
     return Napi::Boolean::New(env, false);
@@ -579,8 +579,14 @@ Napi::Boolean AddNewContact(const Napi::CallbackInfo &info) {
   CNMutableContact *contact = CreateCNMutableContact(contact_data);
 
   CNSaveRequest *request = [[CNSaveRequest alloc] init];
-  [request addContact:contact toContainerWithIdentifier:nil];
-  bool success = [addressBook executeSaveRequest:request error:nil];
+
+  // Apple docs say you can add a contact by calling
+  // addContact:toContainerWithIdentifier: and setting identifier to nil
+  // but this is current causing a crash on macOS Ventura so we
+  // fetch the default container id explicitly to work around this.
+  NSString *container_id = [address_book defaultContainerIdentifier];
+  [request addContact:contact toContainerWithIdentifier:container_id];
+  bool success = [address_book executeSaveRequest:request error:nil];
 
   return Napi::Boolean::New(env, success);
 }
