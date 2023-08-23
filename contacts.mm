@@ -665,10 +665,16 @@ Napi::Boolean SetupListener(const Napi::CallbackInfo &info) {
                   return;
 
                 contacts_ref.Reset();
-                auto callback = [](Napi::Env env, Napi::Function js_cb,
-                                   const char *value) {
-                  js_cb.Call({Napi::String::New(env, value)});
+                bool external =
+                    [[info objectForKey:@"CNNotificationOriginationExternally"]
+                        boolValue];
+
+                auto callback = [external](Napi::Env env, Napi::Function js_cb,
+                                           const char *value) {
+                  js_cb.Call({Napi::String::New(env, value),
+                              Napi::Boolean::New(env, external)});
                 };
+
                 ts_fn.BlockingCall("contact-changed", callback);
               }];
 
