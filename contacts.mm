@@ -659,7 +659,11 @@ Napi::Boolean SetupListener(const Napi::CallbackInfo &info) {
       addObserverForName:CNContactStoreDidChangeNotification
                   object:nil
                    queue:[NSOperationQueue mainQueue]
-              usingBlock:^(NSNotification *note) {
+              usingBlock:^(NSNotification *notification) {
+                NSDictionary *info = [notification userInfo];
+                if ([info count] == 0)
+                  return;
+
                 contacts_ref.Reset();
                 auto callback = [](Napi::Env env, Napi::Function js_cb,
                                    const char *value) {
