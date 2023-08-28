@@ -1,3 +1,4 @@
+#include "node.h"
 #import <AppKit/AppKit.h>
 #import <Contacts/Contacts.h>
 #include <napi.h>
@@ -735,6 +736,10 @@ Napi::Object Init(Napi::Env env, Napi::Object exports) {
               Napi::Function::New(env, DeleteContact));
   exports.Set(Napi::String::New(env, "updateContact"),
               Napi::Function::New(env, UpdateContact));
+
+  auto *isolate = v8::Isolate::GetCurrent();
+  node::AddEnvironmentCleanupHook(
+      isolate, [](void *) { contacts_ref.Reset(); }, isolate);
 
   return exports;
 }
