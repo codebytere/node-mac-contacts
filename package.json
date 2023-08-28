@@ -1,6 +1,6 @@
 {
   "name": "node-mac-contacts",
-  "version": "1.7.1",
+  "version": "1.7.2",
   "description": "A native module that allows you to access and manipulate macOS contacts",
   "main": "index.js",
   "scripts": {
@@ -9,7 +9,7 @@
     "clean": "node-gyp clean",
     "lint": "prettier --check '**/*.js'",
     "format": "clang-format -i contacts.mm && prettier --write '**/*.js'",
-    "rebuild": "node-gyp rebuild",
+    "rebuild": "node-gyp 2ebuild",
     "rebuild:dev": "node-gyp rebuild --debug",
     "test": "./node_modules/.bin/mocha --reporter spec",
     "prepare": "husky install"
