@@ -18,7 +18,7 @@
     ],
     'defines': [ 'NAPI_DISABLE_CPP_EXCEPTIONS' ],
     "xcode_settings": {
-      "OTHER_CPLUSPLUSFLAGS": ["-std=c++14", "-stdlib=libc++", "-mmacosx-version-min=10.12"],
+      "OTHER_CPLUSPLUSFLAGS": ["-std=c++20", "-stdlib=libc++", "-mmacosx-version-min=10.12"],
       "OTHER_LDFLAGS": ["-framework CoreFoundation -framework AppKit -framework Contacts"]
     }
   }]
