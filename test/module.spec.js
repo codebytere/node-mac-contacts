@@ -51,7 +51,7 @@ describe('node-mac-contacts', () => {
 
     it('should throw if extraProperties contains invalid properties', () => {
       const errorMessage =
-        'properties in extraProperties must be one of jobTitle, departmentName, organizationName, middleName, note, contactImage, contactThumbnailImage, instantMessageAddresses, socialProfiles'
+        'properties in extraProperties must be one of jobTitle, departmentName, organizationName, middleName, note, contactImage, contactThumbnailImage, instantMessageAddresses, socialProfiles, urlAddresses'
 
       expect(() => {
         getAllContacts(['bad-property'])
@@ -135,7 +135,7 @@ describe('node-mac-contacts', () => {
 
     it('should throw if extraProperties contains invalid properties', () => {
       const errorMessage =
-        'properties in extraProperties must be one of jobTitle, departmentName, organizationName, middleName, note, contactImage, contactThumbnailImage, instantMessageAddresses, socialProfiles'
+        'properties in extraProperties must be one of jobTitle, departmentName, organizationName, middleName, note, contactImage, contactThumbnailImage, instantMessageAddresses, socialProfiles, urlAddresses'
 
       expect(() => {
         getContactsByName('jim-bob', ['bad-property'])
